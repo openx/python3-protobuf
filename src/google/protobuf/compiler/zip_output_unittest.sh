@@ -53,8 +53,8 @@ echo '
 
 $PROTOC \
     --cpp_out=$TEST_TMPDIR/testzip.zip --python_out=$TEST_TMPDIR/testzip.zip \
-    --java_out=$TEST_TMPDIR/testzip.jar -I$TEST_TMPDIR testzip.proto \
-    || fail 'protoc failed.'
+    --python3_out=$TEST_TMPDIR/testzip.zip --java_out=$TEST_TMPDIR/testzip.jar \
+    -I$TEST_TMPDIR testzip.proto || fail 'protoc failed.'
 
 echo "Testing output to zip..."
 if unzip -h > /dev/null; then
