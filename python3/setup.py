@@ -35,13 +35,13 @@ def generate_proto(source):
   output = source.replace(".proto", "_pb2.py").replace("../src/", "")
 
   if not os.path.exists(source):
-    print "Can't find required file: " + source
+    print("Can't find required file: " + source)
     sys.exit(-1)
 
   if (not os.path.exists(output) or
       (os.path.exists(source) and
        os.path.getmtime(source) > os.path.getmtime(output))):
-    print "Generating %s..." % output
+    print("Generating %s..." % output)
 
     if protoc == None:
       sys.stderr.write(
@@ -108,7 +108,7 @@ if __name__ == '__main__':
 
   # C++ implementation extension
   if os.getenv("PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION", "python") == "cpp":
-    print "Using EXPERIMENTAL C++ Implmenetation."
+    print("Using EXPERIMENTAL C++ Implmenetation.")
     ext_module_list.append(Extension(
         "google.protobuf.internal._net_proto2___python",
         [ "google/protobuf/pyext/python_descriptor.cc",

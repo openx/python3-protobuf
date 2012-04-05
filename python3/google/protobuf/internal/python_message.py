@@ -51,9 +51,9 @@ this file*.
 __author__ = 'robinson@google.com (Will Robinson)'
 
 try:
-  from cStringIO import StringIO
+  from io import StringIO
 except ImportError:
-  from StringIO import StringIO
+  from io import StringIO
 import struct
 import weakref
 
@@ -216,7 +216,7 @@ def _AttachFieldHelpers(cls, field_descriptor):
 
 def _AddClassAttributesForNestedExtensions(descriptor, dictionary):
   extension_dict = descriptor.extensions_by_name
-  for extension_name, extension_field in extension_dict.iteritems():
+  for extension_name, extension_field in extension_dict.items():
     assert extension_name not in dictionary
     dictionary[extension_name] = extension_field
 
@@ -290,7 +290,7 @@ def _AddInitMethod(message_descriptor, cls):
     self._is_present_in_parent = False
     self._listener = message_listener_mod.NullMessageListener()
     self._listener_for_children = _Listener(self)
-    for field_name, field_value in kwargs.iteritems():
+    for field_name, field_value in kwargs.items():
       field = _GetFieldByName(message_descriptor, field_name)
       if field is None:
         raise TypeError("%s() got an unexpected keyword argument '%s'" %
@@ -496,7 +496,7 @@ def _AddPropertiesForNonRepeatedCompositeField(field, cls):
 def _AddPropertiesForExtensions(descriptor, cls):
   """Adds properties for all fields in this protocol message type."""
   extension_dict = descriptor.extensions_by_name
-  for extension_name, extension_field in extension_dict.iteritems():
+  for extension_name, extension_field in extension_dict.items():
     constant_name = extension_name.upper() + "_FIELD_NUMBER"
     setattr(cls, constant_name, extension_field.number)
 
@@ -551,7 +551,7 @@ def _AddListFieldsMethod(message_descriptor, cls):
   """Helper for _AddMessageMethods()."""
 
   def ListFields(self):
-    all_fields = [item for item in self._fields.iteritems() if _IsPresent(item)]
+    all_fields = [item for item in self._fields.items() if _IsPresent(item)]
     all_fields.sort(key = lambda item: item[0].number)
     return all_fields
 
@@ -758,7 +758,7 @@ def _AddMergeFromStringMethod(message_descriptor, cls):
         raise message_mod.DecodeError('Unexpected end-group tag.')
     except IndexError:
       raise message_mod.DecodeError('Truncated message.')
-    except struct.error, e:
+    except struct.error as e:
       raise message_mod.DecodeError(e)
     return length   # Return this for legacy reasons.
   cls.MergeFromString = MergeFromString
@@ -812,7 +812,7 @@ def _AddIsInitializedMethod(message_descriptor, cls):
           errors.extend(self.FindInitializationErrors())
         return False
 
-    for field, value in self._fields.iteritems():
+    for field, value in self._fields.items():
       if field.cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
         if field.label == _FieldDescriptor.LABEL_REPEATED:
           for element in value:
@@ -851,7 +851,7 @@ def _AddIsInitializedMethod(message_descriptor, cls):
           name = field.name
 
         if field.label == _FieldDescriptor.LABEL_REPEATED:
-          for i in xrange(len(value)):
+          for i in range(len(value)):
             element = value[i]
             prefix = "%s[%d]." % (name, i)
             sub_errors = element.FindInitializationErrors()
@@ -880,7 +880,7 @@ def _AddMergeFromMethod(cls):
 
     fields = self._fields
 
-    for field, value in msg._fields.iteritems():
+    for field, value in msg._fields.items():
       if field.label == LABEL_REPEATED:
         field_value = fields.get(field)
         if field_value is None:

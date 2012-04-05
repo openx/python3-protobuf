@@ -378,7 +378,7 @@ def StringDecoder(field_number, is_repeated, is_packed, key, new_default):
   """Returns a decoder for a string field."""
 
   local_DecodeVarint = _DecodeVarint
-  local_unicode = unicode
+  local_unicode = str
 
   assert not is_packed
   if is_repeated:
