@@ -43,14 +43,14 @@ namespace protobuf {
 
 class Message;
 
-namespace python {
+namespace python3 {
 
 // Return the pointer to the C proto inside the given Python proto,
 // or NULL when this is not a Python proto implemented with a C proto.
 const Message* GetCProtoInsidePyProto(PyObject* msg);
 Message* MutableCProtoInsidePyProto(PyObject* msg);
 
-}  // namespace python
+}  // namespace python3
 }  // namespace protobuf
 
 }  // namespace google

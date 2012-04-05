@@ -70,10 +70,8 @@ import struct
 from google.protobuf.internal import wire_format
 
 
-# This will overflow and thus become IEEE-754 "infinity".  We would use
-# "float('inf')" but it doesn't work on Windows pre-Python-2.6.
-_POS_INF = 1e10000
-_NEG_INF = -_POS_INF
+_POS_INF = float('inf')
+_NEG_INF = float('-inf')
 
 
 def _VarintSize(value):

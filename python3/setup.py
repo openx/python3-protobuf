@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 #
 # See README for usage instructions.
 
@@ -49,7 +49,7 @@ def generate_proto(source):
           "or install the binary package.\n")
       sys.exit(-1)
 
-    protoc_command = [ protoc, "-I../src", "-I.", "--python_out=.", source ]
+    protoc_command = [ protoc, "-I../src", "-I.", "--python3_out=.", source ]
     if subprocess.call(protoc_command) != 0:
       sys.exit(-1)
 

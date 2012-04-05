@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 #
 # Protocol Buffers - Google's data interchange format
 # Copyright 2008 Google Inc.  All rights reserved.
@@ -42,6 +42,7 @@ further ensures that we can use Python protocol message objects as we expect.
 __author__ = 'robinson@google.com (Will Robinson)'
 
 import unittest
+import math
 from google.protobuf import unittest_custom_options_pb2
 from google.protobuf import unittest_import_pb2
 from google.protobuf import unittest_mset_pb2
@@ -80,26 +81,17 @@ class GeneratorTest(unittest.TestCase):
   def testExtremeDefaultValues(self):
     message = unittest_pb2.TestExtremeDefaultValues()
 
-    # Python pre-2.6 does not have isinf() or isnan() functions, so we have
-    # to provide our own.
-    def isnan(val):
-      # NaN is never equal to itself.
-      return val != val
-    def isinf(val):
-      # Infinity times zero equals NaN.
-      return not isnan(val) and isnan(val * 0)
-
-    self.assertTrue(isinf(message.inf_double))
+    self.assertTrue(math.isinf(message.inf_double))
     self.assertTrue(message.inf_double > 0)
-    self.assertTrue(isinf(message.neg_inf_double))
+    self.assertTrue(math.isinf(message.neg_inf_double))
     self.assertTrue(message.neg_inf_double < 0)
-    self.assertTrue(isnan(message.nan_double))
+    self.assertTrue(math.isnan(message.nan_double))
 
-    self.assertTrue(isinf(message.inf_float))
+    self.assertTrue(math.isinf(message.inf_float))
     self.assertTrue(message.inf_float > 0)
-    self.assertTrue(isinf(message.neg_inf_float))
+    self.assertTrue(math.isinf(message.neg_inf_float))
     self.assertTrue(message.neg_inf_float < 0)
-    self.assertTrue(isnan(message.nan_float))
+    self.assertTrue(math.isnan(message.nan_float))
     self.assertEqual("? ? ?? ?? ??? ??/ ??-", message.cpp_trigraph)
 
   def testHasDefaultValues(self):

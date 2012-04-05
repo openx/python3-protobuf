@@ -34,7 +34,7 @@
 
 namespace google {
 namespace protobuf {
-namespace python {
+namespace python3 {
 
 static const Message* GetCProtoInsidePyProtoStub(PyObject* msg) {
   return NULL;
@@ -58,6 +58,6 @@ Message* MutableCProtoInsidePyProto(PyObject* msg) {
   return MutableCProtoInsidePyProtoPtr(msg);
 }
 
-}  // namespace python
+}  // namespace python3
 }  // namespace protobuf
 }  // namespace google

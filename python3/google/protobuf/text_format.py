@@ -43,10 +43,8 @@ __all__ = [ 'MessageToString', 'PrintMessage', 'PrintField',
             'PrintFieldValue', 'Merge' ]
 
 
-# Infinity and NaN are not explicitly supported by Python pre-2.6, and
-# float('inf') does not work on Windows (pre-2.6).
-_INFINITY = 1e10000    # overflows, thus will actually be infinity.
-_NAN = _INFINITY * 0
+_INFINITY = float('inf')
+_NAN = float('nan')
 
 
 class ParseError(Exception):

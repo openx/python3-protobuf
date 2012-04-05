@@ -46,7 +46,7 @@ typedef int Py_ssize_t;
 
 namespace google {
 namespace protobuf {
-namespace python {
+namespace python3 {
 
 typedef struct {
   PyObject_HEAD
@@ -80,7 +80,7 @@ PyObject* Python_BuildFile(PyObject* ignored, PyObject* args);
 bool InitDescriptor();
 google::protobuf::DescriptorPool* GetDescriptorPool();
 
-}  // namespace python
+}  // namespace python3
 }  // namespace protobuf
 
 }  // namespace google

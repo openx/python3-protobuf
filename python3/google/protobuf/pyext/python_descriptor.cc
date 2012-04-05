@@ -39,7 +39,7 @@
 
 namespace google {
 namespace protobuf {
-namespace python {
+namespace python3 {
 
 static void CFieldDescriptorDealloc(CFieldDescriptor* self);
 
@@ -93,7 +93,7 @@ static PyGetSetDef CFieldDescriptorGetters[] = {
 PyTypeObject CFieldDescriptor_Type = {
   PyObject_HEAD_INIT(&PyType_Type)
   0,
-  C("google3.net.google.protobuf.python.internal."
+  C("google3.net.google.protobuf.python3.internal."
     "_net_proto2___python."
     "CFieldDescriptor"),                // tp_name
   sizeof(CFieldDescriptor),             // tp_basicsize
@@ -223,7 +223,7 @@ static PyMethodDef CDescriptorPoolMethods[] = {
 PyTypeObject CDescriptorPool_Type = {
   PyObject_HEAD_INIT(&PyType_Type)
   0,
-  C("google3.net.google.protobuf.python.internal."
+  C("google3.net.google.protobuf.python3.internal."
     "_net_proto2___python."
     "CFieldDescriptor"),               // tp_name
   sizeof(CDescriptorPool),             // tp_basicsize
@@ -329,6 +329,6 @@ bool InitDescriptor() {
   return true;
 }
 
-}  // namespace python
+}  // namespace python3
 }  // namespace protobuf
 }  // namespace google

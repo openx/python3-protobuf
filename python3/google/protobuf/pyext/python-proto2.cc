@@ -110,7 +110,7 @@ static PyObject* kuint64max_py;
 
 namespace google {
 namespace protobuf {
-namespace python {
+namespace python3 {
 
 // --- Support Routines:
 
@@ -274,7 +274,7 @@ static PyMemberDef CMessageMembers[] = {
 PyTypeObject CMessage_Type = {
   PyObject_HEAD_INIT(&PyType_Type)
   0,
-  C("google3.net.google.protobuf.python.internal."
+  C("google3.net.google.protobuf.python3.internal."
     "_net_proto2___python."
     "CMessage"),                       // tp_name
   sizeof(CMessage),                    //  tp_basicsize
@@ -1655,6 +1655,6 @@ extern "C" {
   }
 }
 
-}  // namespace python
+}  // namespace python3
 }  // namespace protobuf
 }  // namespace google
