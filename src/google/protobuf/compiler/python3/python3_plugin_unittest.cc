@@ -34,7 +34,7 @@
 //   It seemed like parameterizing it would add more complexity than it is
 //   worth.
 
-#include <google/protobuf/compiler/python3/python_generator.h>
+#include <google/protobuf/compiler/python3/python3_generator.h>
 #include <google/protobuf/compiler/command_line_interface.h>
 #include <google/protobuf/io/zero_copy_stream.h>
 #include <google/protobuf/io/printer.h>
@@ -89,9 +89,9 @@ TEST(PythonPluginTest, PluginTest) {
   google::protobuf::compiler::CommandLineInterface cli;
   cli.SetInputsAreProtoPathRelative(true);
 
-  python3::Generator python_generator;
+  python3::Generator python3_generator;
   TestGenerator test_generator;
-  cli.RegisterGenerator("--python3_out", &python_generator, "");
+  cli.RegisterGenerator("--python3_out", &python3_generator, "");
   cli.RegisterGenerator("--test_out", &test_generator, "");
 
   string proto_path = "-I" + TestTempDir();

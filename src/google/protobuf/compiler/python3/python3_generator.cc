@@ -48,7 +48,7 @@
 #include <string>
 #include <vector>
 
-#include <google/protobuf/compiler/python3/python_generator.h>
+#include <google/protobuf/compiler/python3/python3_generator.h>
 #include <google/protobuf/descriptor.pb.h>
 
 #include <google/protobuf/stubs/common.h>
