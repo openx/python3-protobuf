@@ -80,7 +80,7 @@ string ModuleName(const string& filename) {
   string basename = StripProto(filename);
   StripString(&basename, "-", '_');
   StripString(&basename, "/", '.');
-  return basename + "_pb2";
+  return basename + "_pb3";
 }
 
 
@@ -130,10 +130,10 @@ void PrintTopBoilerplate(
         "from google.protobuf import service_reflection\n");
   }
 
-  // Avoid circular imports if this module is descriptor_pb2.
+  // Avoid circular imports if this module is descriptor_pb3.
   if (!descriptor_proto) {
     printer->Print(
-        "from google.protobuf import descriptor_pb2\n");
+        "from google.protobuf import descriptor_pb3\n");
   }
   printer->Print(
     "# @@protoc_insertion_point(imports)\n");
@@ -833,7 +833,7 @@ string Generator::OptionsValue(
   if (serialized_options.length() == 0 || GeneratingDescriptorProto()) {
     return "None";
   } else {
-    string full_class_name = "descriptor_pb2." + class_name;
+    string full_class_name = "descriptor_pb3." + class_name;
     return "descriptor._ParseOptions(" + full_class_name + "(), '"
         + CEscape(serialized_options)+ "')";
   }

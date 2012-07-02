@@ -33,7 +33,7 @@
 #include <google/protobuf/compiler/command_line_interface.h>
 #include <google/protobuf/compiler/cpp/cpp_generator.h>
 #include <google/protobuf/compiler/python/python_generator.h>
-#include <google/protobuf/compiler/python3/python_generator.h>
+#include <google/protobuf/compiler/python3/python3_generator.h>
 #include <google/protobuf/compiler/java/java_generator.h>
 
 
@@ -60,9 +60,9 @@ int main(int argc, char* argv[]) {
 
 
   // Proto2 Python3
-  google::protobuf::compiler::python3::Generator py_generator;
-  cli.RegisterGenerator("--python3_out", &py_generator,
-                        "Generate Python source file.");
+  google::protobuf::compiler::python3::Generator py3_generator;
+  cli.RegisterGenerator("--python3_out", &py3_generator,
+                        "Generate Python3 source file.");
 
   return cli.Run(argc, argv);
 }

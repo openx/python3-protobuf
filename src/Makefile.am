@@ -325,7 +325,7 @@ protobuf_test_SOURCES =                                        \
   google/protobuf/compiler/cpp/cpp_plugin_unittest.cc          \
   google/protobuf/compiler/java/java_plugin_unittest.cc        \
   google/protobuf/compiler/python/python_plugin_unittest.cc    \
-  google/protobuf/compiler/python3/python_plugin_unittest.cc    \
+  google/protobuf/compiler/python3/python3_plugin_unittest.cc  \
   $(COMMON_TEST_SOURCES)
 nodist_protobuf_test_SOURCES = $(protoc_outputs)
 

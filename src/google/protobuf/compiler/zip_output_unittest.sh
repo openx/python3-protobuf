@@ -51,6 +51,8 @@ echo '
   message Bar {}
 ' > $TEST_TMPDIR/testzip.proto
 
+#--python_out=$TEST_TMPDIR/testzip.zip \
+
 $PROTOC \
     --cpp_out=$TEST_TMPDIR/testzip.zip --python_out=$TEST_TMPDIR/testzip.zip \
     --python3_out=$TEST_TMPDIR/testzip.zip --java_out=$TEST_TMPDIR/testzip.jar \
@@ -66,6 +68,8 @@ if unzip -h > /dev/null; then
     || fail 'testzip.pb.h not found in output zip.'
   grep 'testing: testzip_pb2\.py *OK$' $TEST_TMPDIR/testzip.list > /dev/null \
     || fail 'testzip_pb2.py not found in output zip.'
+  grep 'testing: testzip_pb3\.py *OK$' $TEST_TMPDIR/testzip.list > /dev/null \
+    || fail 'testzip_pb3.py not found in output zip.'
   grep -i 'manifest' $TEST_TMPDIR/testzip.list > /dev/null \
     && fail 'Zip file contained manifest.'
 else
