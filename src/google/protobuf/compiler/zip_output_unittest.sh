@@ -68,8 +68,8 @@ if unzip -h > /dev/null; then
     || fail 'testzip.pb.h not found in output zip.'
   grep 'testing: testzip_pb2\.py *OK$' $TEST_TMPDIR/testzip.list > /dev/null \
     || fail 'testzip_pb2.py not found in output zip.'
-  grep 'testing: testzip_pb3\.py *OK$' $TEST_TMPDIR/testzip.list > /dev/null \
-    || fail 'testzip_pb3.py not found in output zip.'
+  grep 'testing: testzip_py3_pb2\.py *OK$' $TEST_TMPDIR/testzip.list > /dev/null \
+    || fail 'testzip_py3_pb2.py not found in output zip.'
   grep -i 'manifest' $TEST_TMPDIR/testzip.list > /dev/null \
     && fail 'Zip file contained manifest.'
 else

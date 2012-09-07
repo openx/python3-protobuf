@@ -38,15 +38,15 @@ __author__ = 'robinson@google.com (Will Robinson)'
 
 import os.path
 
-from google.protobuf import unittest_import_pb2
-from google.protobuf import unittest_pb2
+from google.protobuf import unittest_import_py3_pb2
+from google.protobuf import unittest_py3_pb2
 
 
 def SetAllFields(message):
   """Sets every field in the message to a unique value.
 
   Args:
-    message: A unittest_pb2.TestAllTypes instance.
+    message: A unittest_py3_pb2.TestAllTypes instance.
   """
 
   #
@@ -80,9 +80,9 @@ def SetAllFields(message):
   message.optional_foreign_message.c = 119
   message.optional_import_message.d = 120
 
-  message.optional_nested_enum = unittest_pb2.TestAllTypes.BAZ
-  message.optional_foreign_enum = unittest_pb2.FOREIGN_BAZ
-  message.optional_import_enum = unittest_import_pb2.IMPORT_BAZ
+  message.optional_nested_enum = unittest_py3_pb2.TestAllTypes.BAZ
+  message.optional_foreign_enum = unittest_py3_pb2.FOREIGN_BAZ
+  message.optional_import_enum = unittest_import_py3_pb2.IMPORT_BAZ
 
   message.optional_string_piece = '124'
   message.optional_cord = '125'
@@ -112,9 +112,9 @@ def SetAllFields(message):
   message.repeated_foreign_message.add().c = 219
   message.repeated_import_message.add().d = 220
 
-  message.repeated_nested_enum.append(unittest_pb2.TestAllTypes.BAR)
-  message.repeated_foreign_enum.append(unittest_pb2.FOREIGN_BAR)
-  message.repeated_import_enum.append(unittest_import_pb2.IMPORT_BAR)
+  message.repeated_nested_enum.append(unittest_py3_pb2.TestAllTypes.BAR)
+  message.repeated_foreign_enum.append(unittest_py3_pb2.FOREIGN_BAR)
+  message.repeated_import_enum.append(unittest_import_py3_pb2.IMPORT_BAR)
 
   message.repeated_string_piece.append('224')
   message.repeated_cord.append('225')
@@ -141,9 +141,9 @@ def SetAllFields(message):
   message.repeated_foreign_message.add().c = 319
   message.repeated_import_message.add().d = 320
 
-  message.repeated_nested_enum.append(unittest_pb2.TestAllTypes.BAZ)
-  message.repeated_foreign_enum.append(unittest_pb2.FOREIGN_BAZ)
-  message.repeated_import_enum.append(unittest_import_pb2.IMPORT_BAZ)
+  message.repeated_nested_enum.append(unittest_py3_pb2.TestAllTypes.BAZ)
+  message.repeated_foreign_enum.append(unittest_py3_pb2.FOREIGN_BAZ)
+  message.repeated_import_enum.append(unittest_import_py3_pb2.IMPORT_BAZ)
 
   message.repeated_string_piece.append('324')
   message.repeated_cord.append('325')
@@ -168,9 +168,9 @@ def SetAllFields(message):
   message.default_string = '415'
   message.default_bytes = '416'
 
-  message.default_nested_enum = unittest_pb2.TestAllTypes.FOO
-  message.default_foreign_enum = unittest_pb2.FOREIGN_FOO
-  message.default_import_enum = unittest_import_pb2.IMPORT_FOO
+  message.default_nested_enum = unittest_py3_pb2.TestAllTypes.FOO
+  message.default_foreign_enum = unittest_py3_pb2.FOREIGN_FOO
+  message.default_import_enum = unittest_import_py3_pb2.IMPORT_FOO
 
   message.default_string_piece = '424'
   message.default_cord = '425'
@@ -180,12 +180,12 @@ def SetAllExtensions(message):
   """Sets every extension in the message to a unique value.
 
   Args:
-    message: A unittest_pb2.TestAllExtensions instance.
+    message: A unittest_py3_pb2.TestAllExtensions instance.
   """
 
   extensions = message.Extensions
-  pb2 = unittest_pb2
-  import_pb2 = unittest_import_pb2
+  pb2 = unittest_py3_pb2
+  import_py3_pb2 = unittest_import_py3_pb2
 
   #
   # Optional fields.
@@ -215,7 +215,7 @@ def SetAllExtensions(message):
   extensions[pb2.optional_nested_enum_extension] = pb2.TestAllTypes.BAZ
   extensions[pb2.optional_nested_enum_extension] = pb2.TestAllTypes.BAZ
   extensions[pb2.optional_foreign_enum_extension] = pb2.FOREIGN_BAZ
-  extensions[pb2.optional_import_enum_extension] = import_pb2.IMPORT_BAZ
+  extensions[pb2.optional_import_enum_extension] = import_py3_pb2.IMPORT_BAZ
 
   extensions[pb2.optional_string_piece_extension] = '124'
   extensions[pb2.optional_cord_extension] = '125'
@@ -247,7 +247,7 @@ def SetAllExtensions(message):
 
   extensions[pb2.repeated_nested_enum_extension].append(pb2.TestAllTypes.BAR)
   extensions[pb2.repeated_foreign_enum_extension].append(pb2.FOREIGN_BAR)
-  extensions[pb2.repeated_import_enum_extension].append(import_pb2.IMPORT_BAR)
+  extensions[pb2.repeated_import_enum_extension].append(import_py3_pb2.IMPORT_BAR)
 
   extensions[pb2.repeated_string_piece_extension].append('224')
   extensions[pb2.repeated_cord_extension].append('225')
@@ -276,7 +276,7 @@ def SetAllExtensions(message):
 
   extensions[pb2.repeated_nested_enum_extension].append(pb2.TestAllTypes.BAZ)
   extensions[pb2.repeated_foreign_enum_extension].append(pb2.FOREIGN_BAZ)
-  extensions[pb2.repeated_import_enum_extension].append(import_pb2.IMPORT_BAZ)
+  extensions[pb2.repeated_import_enum_extension].append(import_py3_pb2.IMPORT_BAZ)
 
   extensions[pb2.repeated_string_piece_extension].append('324')
   extensions[pb2.repeated_cord_extension].append('325')
@@ -303,7 +303,7 @@ def SetAllExtensions(message):
 
   extensions[pb2.default_nested_enum_extension] = pb2.TestAllTypes.FOO
   extensions[pb2.default_foreign_enum_extension] = pb2.FOREIGN_FOO
-  extensions[pb2.default_import_enum_extension] = import_pb2.IMPORT_FOO
+  extensions[pb2.default_import_enum_extension] = import_py3_pb2.IMPORT_FOO
 
   extensions[pb2.default_string_piece_extension] = '424'
   extensions[pb2.default_cord_extension] = '425'
@@ -313,13 +313,13 @@ def SetAllFieldsAndExtensions(message):
   """Sets every field and extension in the message to a unique value.
 
   Args:
-    message: A unittest_pb2.TestAllExtensions message.
+    message: A unittest_py3_pb2.TestAllExtensions message.
   """
   message.my_int = 1
   message.my_string = 'foo'
   message.my_float = 1.0
-  message.Extensions[unittest_pb2.my_extension_int] = 23
-  message.Extensions[unittest_pb2.my_extension_string] = 'bar'
+  message.Extensions[unittest_py3_pb2.my_extension_int] = 23
+  message.Extensions[unittest_py3_pb2.my_extension_string] = 'bar'
 
 
 def ExpectAllFieldsAndExtensionsInOrder(serialized):
@@ -327,10 +327,10 @@ def ExpectAllFieldsAndExtensionsInOrder(serialized):
   filled with SetAllFieldsAndExtensions().  (Specifically, ensures that the
   serialization is in canonical, tag-number order).
   """
-  my_extension_int = unittest_pb2.my_extension_int
-  my_extension_string = unittest_pb2.my_extension_string
+  my_extension_int = unittest_py3_pb2.my_extension_int
+  my_extension_string = unittest_py3_pb2.my_extension_string
   expected_strings = []
-  message = unittest_pb2.TestFieldOrderings()
+  message = unittest_py3_pb2.TestFieldOrderings()
   message.my_int = 1  # Field 1.
   expected_strings.append(message.SerializeToString())
   message.Clear()
@@ -408,11 +408,11 @@ def ExpectAllFieldsSet(test_case, message):
   test_case.assertEqual(119, message.optional_foreign_message.c)
   test_case.assertEqual(120, message.optional_import_message.d)
 
-  test_case.assertEqual(unittest_pb2.TestAllTypes.BAZ,
+  test_case.assertEqual(unittest_py3_pb2.TestAllTypes.BAZ,
                         message.optional_nested_enum)
-  test_case.assertEqual(unittest_pb2.FOREIGN_BAZ,
+  test_case.assertEqual(unittest_py3_pb2.FOREIGN_BAZ,
                         message.optional_foreign_enum)
-  test_case.assertEqual(unittest_import_pb2.IMPORT_BAZ,
+  test_case.assertEqual(unittest_import_py3_pb2.IMPORT_BAZ,
                         message.optional_import_enum)
 
   # -----------------------------------------------------------------
@@ -465,11 +465,11 @@ def ExpectAllFieldsSet(test_case, message):
   test_case.assertEqual(219, message.repeated_foreign_message[0].c)
   test_case.assertEqual(220, message.repeated_import_message[0].d)
 
-  test_case.assertEqual(unittest_pb2.TestAllTypes.BAR,
+  test_case.assertEqual(unittest_py3_pb2.TestAllTypes.BAR,
                         message.repeated_nested_enum[0])
-  test_case.assertEqual(unittest_pb2.FOREIGN_BAR,
+  test_case.assertEqual(unittest_py3_pb2.FOREIGN_BAR,
                         message.repeated_foreign_enum[0])
-  test_case.assertEqual(unittest_import_pb2.IMPORT_BAR,
+  test_case.assertEqual(unittest_import_py3_pb2.IMPORT_BAR,
                         message.repeated_import_enum[0])
 
   test_case.assertEqual(301, message.repeated_int32[1])
@@ -493,11 +493,11 @@ def ExpectAllFieldsSet(test_case, message):
   test_case.assertEqual(319, message.repeated_foreign_message[1].c)
   test_case.assertEqual(320, message.repeated_import_message[1].d)
 
-  test_case.assertEqual(unittest_pb2.TestAllTypes.BAZ,
+  test_case.assertEqual(unittest_py3_pb2.TestAllTypes.BAZ,
                         message.repeated_nested_enum[1])
-  test_case.assertEqual(unittest_pb2.FOREIGN_BAZ,
+  test_case.assertEqual(unittest_py3_pb2.FOREIGN_BAZ,
                         message.repeated_foreign_enum[1])
-  test_case.assertEqual(unittest_import_pb2.IMPORT_BAZ,
+  test_case.assertEqual(unittest_import_py3_pb2.IMPORT_BAZ,
                         message.repeated_import_enum[1])
 
   # -----------------------------------------------------------------
@@ -538,11 +538,11 @@ def ExpectAllFieldsSet(test_case, message):
   test_case.assertEqual('415', message.default_string)
   test_case.assertEqual('416', message.default_bytes)
 
-  test_case.assertEqual(unittest_pb2.TestAllTypes.FOO,
+  test_case.assertEqual(unittest_py3_pb2.TestAllTypes.FOO,
                         message.default_nested_enum)
-  test_case.assertEqual(unittest_pb2.FOREIGN_FOO,
+  test_case.assertEqual(unittest_py3_pb2.FOREIGN_FOO,
                         message.default_foreign_enum)
-  test_case.assertEqual(unittest_import_pb2.IMPORT_FOO,
+  test_case.assertEqual(unittest_import_py3_pb2.IMPORT_FOO,
                         message.default_import_enum)
 
 def GoldenFile(filename):
@@ -567,7 +567,7 @@ def SetAllPackedFields(message):
   """Sets every field in the message to a unique value.
 
   Args:
-    message: A unittest_pb2.TestPackedTypes instance.
+    message: A unittest_py3_pb2.TestPackedTypes instance.
   """
   message.packed_int32.extend([601, 701])
   message.packed_int64.extend([602, 702])
@@ -582,18 +582,18 @@ def SetAllPackedFields(message):
   message.packed_float.extend([611.0, 711.0])
   message.packed_double.extend([612.0, 712.0])
   message.packed_bool.extend([True, False])
-  message.packed_enum.extend([unittest_pb2.FOREIGN_BAR,
-                              unittest_pb2.FOREIGN_BAZ])
+  message.packed_enum.extend([unittest_py3_pb2.FOREIGN_BAR,
+                              unittest_py3_pb2.FOREIGN_BAZ])
 
 
 def SetAllPackedExtensions(message):
   """Sets every extension in the message to a unique value.
 
   Args:
-    message: A unittest_pb2.TestPackedExtensions instance.
+    message: A unittest_py3_pb2.TestPackedExtensions instance.
   """
   extensions = message.Extensions
-  pb2 = unittest_pb2
+  pb2 = unittest_py3_pb2
 
   extensions[pb2.packed_int32_extension].extend([601, 701])
   extensions[pb2.packed_int64_extension].extend([602, 702])
@@ -608,15 +608,15 @@ def SetAllPackedExtensions(message):
   extensions[pb2.packed_float_extension].extend([611.0, 711.0])
   extensions[pb2.packed_double_extension].extend([612.0, 712.0])
   extensions[pb2.packed_bool_extension].extend([True, False])
-  extensions[pb2.packed_enum_extension].extend([unittest_pb2.FOREIGN_BAR,
-                                                unittest_pb2.FOREIGN_BAZ])
+  extensions[pb2.packed_enum_extension].extend([unittest_py3_pb2.FOREIGN_BAR,
+                                                unittest_py3_pb2.FOREIGN_BAZ])
 
 
 def SetAllUnpackedFields(message):
   """Sets every field in the message to a unique value.
 
   Args:
-    message: A unittest_pb2.TestUnpackedTypes instance.
+    message: A unittest_py3_pb2.TestUnpackedTypes instance.
   """
   message.unpacked_int32.extend([601, 701])
   message.unpacked_int64.extend([602, 702])
@@ -631,5 +631,5 @@ def SetAllUnpackedFields(message):
   message.unpacked_float.extend([611.0, 711.0])
   message.unpacked_double.extend([612.0, 712.0])
   message.unpacked_bool.extend([True, False])
-  message.unpacked_enum.extend([unittest_pb2.FOREIGN_BAR,
-                                unittest_pb2.FOREIGN_BAZ])
+  message.unpacked_enum.extend([unittest_py3_pb2.FOREIGN_BAR,
+                                unittest_py3_pb2.FOREIGN_BAZ])

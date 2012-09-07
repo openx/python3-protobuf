@@ -35,9 +35,9 @@
 __author__ = 'robinson@google.com (Will Robinson)'
 
 import unittest
-from google.protobuf import unittest_import_pb2
-from google.protobuf import unittest_pb2
-from google.protobuf import descriptor_pb2
+from google.protobuf import unittest_import_py3_pb2
+from google.protobuf import unittest_py3_pb2
+from google.protobuf import descriptor_py3_pb2
 from google.protobuf import descriptor
 from google.protobuf import text_format
 
@@ -113,17 +113,17 @@ class DescriptorTest(unittest.TestCase):
 
   def testGetOptions(self):
     self.assertEqual(self.my_enum.GetOptions(),
-                     descriptor_pb2.EnumOptions())
+                     descriptor_py3_pb2.EnumOptions())
     self.assertEqual(self.my_enum.values[0].GetOptions(),
-                     descriptor_pb2.EnumValueOptions())
+                     descriptor_py3_pb2.EnumValueOptions())
     self.assertEqual(self.my_message.GetOptions(),
-                     descriptor_pb2.MessageOptions())
+                     descriptor_py3_pb2.MessageOptions())
     self.assertEqual(self.my_message.fields[0].GetOptions(),
-                     descriptor_pb2.FieldOptions())
+                     descriptor_py3_pb2.FieldOptions())
     self.assertEqual(self.my_method.GetOptions(),
-                     descriptor_pb2.MethodOptions())
+                     descriptor_py3_pb2.MethodOptions())
     self.assertEqual(self.my_service.GetOptions(),
-                     descriptor_pb2.ServiceOptions())
+                     descriptor_py3_pb2.ServiceOptions())
 
   def testFileDescriptorReferences(self):
     self.assertEqual(self.my_enum.file, self.my_file)
@@ -155,8 +155,8 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
 
   def testCopyToProto_EmptyMessage(self):
     self._InternalTestCopyToProto(
-        unittest_pb2.TestEmptyMessage.DESCRIPTOR,
-        descriptor_pb2.DescriptorProto,
+        unittest_py3_pb2.TestEmptyMessage.DESCRIPTOR,
+        descriptor_py3_pb2.DescriptorProto,
         TEST_EMPTY_MESSAGE_DESCRIPTOR_ASCII)
 
   def testCopyToProto_NestedMessage(self):
@@ -171,8 +171,8 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
       """
 
     self._InternalTestCopyToProto(
-        unittest_pb2.TestAllTypes.NestedMessage.DESCRIPTOR,
-        descriptor_pb2.DescriptorProto,
+        unittest_py3_pb2.TestAllTypes.NestedMessage.DESCRIPTOR,
+        descriptor_py3_pb2.DescriptorProto,
         TEST_NESTED_MESSAGE_ASCII)
 
   def testCopyToProto_ForeignNestedMessage(self):
@@ -188,8 +188,8 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
       """
 
     self._InternalTestCopyToProto(
-        unittest_pb2.TestForeignNested.DESCRIPTOR,
-        descriptor_pb2.DescriptorProto,
+        unittest_py3_pb2.TestForeignNested.DESCRIPTOR,
+        descriptor_py3_pb2.DescriptorProto,
         TEST_FOREIGN_NESTED_ASCII)
 
   def testCopyToProto_ForeignEnum(self):
@@ -210,8 +210,8 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
       """
 
     self._InternalTestCopyToProto(
-        unittest_pb2._FOREIGNENUM,
-        descriptor_pb2.EnumDescriptorProto,
+        unittest_py3_pb2._FOREIGNENUM,
+        descriptor_py3_pb2.EnumDescriptorProto,
         TEST_FOREIGN_ENUM_ASCII)
 
   def testCopyToProto_Options(self):
@@ -229,8 +229,8 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
       """
 
     self._InternalTestCopyToProto(
-        unittest_pb2.TestDeprecatedFields.DESCRIPTOR,
-        descriptor_pb2.DescriptorProto,
+        unittest_py3_pb2.TestDeprecatedFields.DESCRIPTOR,
+        descriptor_py3_pb2.DescriptorProto,
         TEST_DEPRECATED_FIELDS_ASCII)
 
   def testCopyToProto_AllExtensions(self):
@@ -243,8 +243,8 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
       """
 
     self._InternalTestCopyToProto(
-        unittest_pb2.TestEmptyMessageWithExtensions.DESCRIPTOR,
-        descriptor_pb2.DescriptorProto,
+        unittest_py3_pb2.TestEmptyMessageWithExtensions.DESCRIPTOR,
+        descriptor_py3_pb2.DescriptorProto,
         TEST_EMPTY_MESSAGE_WITH_EXTENSIONS_ASCII)
 
   def testCopyToProto_SeveralExtensions(self):
@@ -265,8 +265,8 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
       """
 
     self._InternalTestCopyToProto(
-        unittest_pb2.TestMultipleExtensionRanges.DESCRIPTOR,
-        descriptor_pb2.DescriptorProto,
+        unittest_py3_pb2.TestMultipleExtensionRanges.DESCRIPTOR,
+        descriptor_py3_pb2.DescriptorProto,
         TEST_MESSAGE_WITH_SEVERAL_EXTENSIONS_ASCII)
 
   def testCopyToProto_FileDescriptor(self):
@@ -305,8 +305,8 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
       """)
 
     self._InternalTestCopyToProto(
-        unittest_import_pb2.DESCRIPTOR,
-        descriptor_pb2.FileDescriptorProto,
+        unittest_import_py3_pb2.DESCRIPTOR,
+        descriptor_py3_pb2.FileDescriptorProto,
         UNITTEST_IMPORT_FILE_DESCRIPTOR_ASCII)
 
   def testCopyToProto_ServiceDescriptor(self):
@@ -325,8 +325,8 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
       """
 
     self._InternalTestCopyToProto(
-        unittest_pb2.TestService.DESCRIPTOR,
-        descriptor_pb2.ServiceDescriptorProto,
+        unittest_py3_pb2.TestService.DESCRIPTOR,
+        descriptor_py3_pb2.ServiceDescriptorProto,
         TEST_SERVICE_ASCII)
 
 

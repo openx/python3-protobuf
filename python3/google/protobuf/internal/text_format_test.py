@@ -40,8 +40,8 @@ import re
 import unittest
 from google.protobuf import text_format
 from google.protobuf.internal import test_util
-from google.protobuf import unittest_pb2
-from google.protobuf import unittest_mset_pb2
+from google.protobuf import unittest_py3_pb2
+from google.protobuf import unittest_mset_py3_pb2
 
 
 class TextFormatTest(unittest.TestCase):
@@ -65,23 +65,23 @@ class TextFormatTest(unittest.TestCase):
       ''.join(difflib.ndiff(golden_lines, actual_lines)))
 
   def testPrintAllFields(self):
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     test_util.SetAllFields(message)
     self.CompareToGoldenFile(
       self.RemoveRedundantZeros(text_format.MessageToString(message)),
       'text_format_unittest_data.txt')
 
   def testPrintAllExtensions(self):
-    message = unittest_pb2.TestAllExtensions()
+    message = unittest_py3_pb2.TestAllExtensions()
     test_util.SetAllExtensions(message)
     self.CompareToGoldenFile(
       self.RemoveRedundantZeros(text_format.MessageToString(message)),
       'text_format_unittest_extensions_data.txt')
 
   def testPrintMessageSet(self):
-    message = unittest_mset_pb2.TestMessageSetContainer()
-    ext1 = unittest_mset_pb2.TestMessageSetExtension1.message_set_extension
-    ext2 = unittest_mset_pb2.TestMessageSetExtension2.message_set_extension
+    message = unittest_mset_py3_pb2.TestMessageSetContainer()
+    ext1 = unittest_mset_py3_pb2.TestMessageSetExtension1.message_set_extension
+    ext2 = unittest_mset_py3_pb2.TestMessageSetExtension2.message_set_extension
     message.message_set.Extensions[ext1].i = 23
     message.message_set.Extensions[ext2].str = 'foo'
     self.CompareToGoldenText(text_format.MessageToString(message),
@@ -95,7 +95,7 @@ class TextFormatTest(unittest.TestCase):
       '}\n')
 
   def testPrintExotic(self):
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     message.repeated_int64.append(-9223372036854775808)
     message.repeated_uint64.append(18446744073709551615)
     message.repeated_double.append(123.456)
@@ -115,7 +115,7 @@ class TextFormatTest(unittest.TestCase):
       'repeated_string: "\\303\\274\\352\\234\\237"\n')
 
   def testPrintNestedMessageAsOneLine(self):
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     msg = message.repeated_nested_message.add()
     msg.bb = 42;
     self.CompareToGoldenText(
@@ -123,7 +123,7 @@ class TextFormatTest(unittest.TestCase):
         'repeated_nested_message { bb: 42 }')
 
   def testPrintRepeatedFieldsAsOneLine(self):
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     message.repeated_int32.append(1)
     message.repeated_int32.append(1)
     message.repeated_int32.append(3)
@@ -135,16 +135,16 @@ class TextFormatTest(unittest.TestCase):
         'repeated_string: "Google" repeated_string: "Zurich"')
 
   def testPrintNestedNewLineInStringAsOneLine(self):
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     message.optional_string = "a\nnew\nline"
     self.CompareToGoldenText(
         text_format.MessageToString(message, as_one_line=True),
         'optional_string: "a\\nnew\\nline"')
 
   def testPrintMessageSetAsOneLine(self):
-    message = unittest_mset_pb2.TestMessageSetContainer()
-    ext1 = unittest_mset_pb2.TestMessageSetExtension1.message_set_extension
-    ext2 = unittest_mset_pb2.TestMessageSetExtension2.message_set_extension
+    message = unittest_mset_py3_pb2.TestMessageSetContainer()
+    ext1 = unittest_mset_py3_pb2.TestMessageSetExtension1.message_set_extension
+    ext2 = unittest_mset_py3_pb2.TestMessageSetExtension2.message_set_extension
     message.message_set.Extensions[ext1].i = 23
     message.message_set.Extensions[ext2].str = 'foo'
     self.CompareToGoldenText(
@@ -159,7 +159,7 @@ class TextFormatTest(unittest.TestCase):
         ' }')
 
   def testPrintExoticAsOneLine(self):
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     message.repeated_int64.append(-9223372036854775808)
     message.repeated_uint64.append(18446744073709551615)
     message.repeated_double.append(123.456)
@@ -180,7 +180,7 @@ class TextFormatTest(unittest.TestCase):
       ' repeated_string: "\\303\\274\\352\\234\\237"')
 
   def testRoundTripExoticAsOneLine(self):
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     message.repeated_int64.append(-9223372036854775808)
     message.repeated_uint64.append(18446744073709551615)
     message.repeated_double.append(123.456)
@@ -192,28 +192,28 @@ class TextFormatTest(unittest.TestCase):
     # Test as_utf8 = False.
     wire_text = text_format.MessageToString(
         message, as_one_line=True, as_utf8=False)
-    parsed_message = unittest_pb2.TestAllTypes()
+    parsed_message = unittest_py3_pb2.TestAllTypes()
     text_format.Merge(wire_text, parsed_message)
     self.assertEquals(message, parsed_message)
 
     # Test as_utf8 = True.
     wire_text = text_format.MessageToString(
         message, as_one_line=True, as_utf8=True)
-    parsed_message = unittest_pb2.TestAllTypes()
+    parsed_message = unittest_py3_pb2.TestAllTypes()
     text_format.Merge(wire_text, parsed_message)
     self.assertEquals(message, parsed_message)
 
   def testPrintRawUtf8String(self):
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     message.repeated_string.append('\u00fc\ua71f')
     text = text_format.MessageToString(message, as_utf8 = True)
     self.CompareToGoldenText(text, 'repeated_string: "\303\274\352\234\237"\n')
-    parsed_message = unittest_pb2.TestAllTypes()
+    parsed_message = unittest_py3_pb2.TestAllTypes()
     text_format.Merge(text, parsed_message)
     self.assertEquals(message, parsed_message)
 
   def testMessageToString(self):
-    message = unittest_pb2.ForeignMessage()
+    message = unittest_py3_pb2.ForeignMessage()
     message.c = 123
     self.assertEqual('c: 123\n', str(message))
 
@@ -229,51 +229,51 @@ class TextFormatTest(unittest.TestCase):
 
   def testMergeGolden(self):
     golden_text = '\n'.join(self.ReadGolden('text_format_unittest_data.txt'))
-    parsed_message = unittest_pb2.TestAllTypes()
+    parsed_message = unittest_py3_pb2.TestAllTypes()
     text_format.Merge(golden_text, parsed_message)
 
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     test_util.SetAllFields(message)
     self.assertEquals(message, parsed_message)
 
   def testMergeGoldenExtensions(self):
     golden_text = '\n'.join(self.ReadGolden(
         'text_format_unittest_extensions_data.txt'))
-    parsed_message = unittest_pb2.TestAllExtensions()
+    parsed_message = unittest_py3_pb2.TestAllExtensions()
     text_format.Merge(golden_text, parsed_message)
 
-    message = unittest_pb2.TestAllExtensions()
+    message = unittest_py3_pb2.TestAllExtensions()
     test_util.SetAllExtensions(message)
     self.assertEquals(message, parsed_message)
 
   def testMergeAllFields(self):
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     test_util.SetAllFields(message)
     ascii_text = text_format.MessageToString(message)
 
-    parsed_message = unittest_pb2.TestAllTypes()
+    parsed_message = unittest_py3_pb2.TestAllTypes()
     text_format.Merge(ascii_text, parsed_message)
     self.assertEqual(message, parsed_message)
     test_util.ExpectAllFieldsSet(self, message)
 
   def testMergeAllExtensions(self):
-    message = unittest_pb2.TestAllExtensions()
+    message = unittest_py3_pb2.TestAllExtensions()
     test_util.SetAllExtensions(message)
     ascii_text = text_format.MessageToString(message)
 
-    parsed_message = unittest_pb2.TestAllExtensions()
+    parsed_message = unittest_py3_pb2.TestAllExtensions()
     text_format.Merge(ascii_text, parsed_message)
     self.assertEqual(message, parsed_message)
 
   def testMergeMessageSet(self):
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     text = ('repeated_uint64: 1\n'
             'repeated_uint64: 2\n')
     text_format.Merge(text, message)
     self.assertEqual(1, message.repeated_uint64[0])
     self.assertEqual(2, message.repeated_uint64[1])
 
-    message = unittest_mset_pb2.TestMessageSetContainer()
+    message = unittest_mset_py3_pb2.TestMessageSetContainer()
     text = ('message_set {\n'
             '  [protobuf_unittest.TestMessageSetExtension1] {\n'
             '    i: 23\n'
@@ -283,13 +283,13 @@ class TextFormatTest(unittest.TestCase):
             '  }\n'
             '}\n')
     text_format.Merge(text, message)
-    ext1 = unittest_mset_pb2.TestMessageSetExtension1.message_set_extension
-    ext2 = unittest_mset_pb2.TestMessageSetExtension2.message_set_extension
+    ext1 = unittest_mset_py3_pb2.TestMessageSetExtension1.message_set_extension
+    ext2 = unittest_mset_py3_pb2.TestMessageSetExtension2.message_set_extension
     self.assertEquals(23, message.message_set.Extensions[ext1].i)
     self.assertEquals('foo', message.message_set.Extensions[ext2].str)
 
   def testMergeExotic(self):
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     text = ('repeated_int64: -9223372036854775808\n'
             'repeated_uint64: 18446744073709551615\n'
             'repeated_double: 123.456\n'
@@ -315,18 +315,18 @@ class TextFormatTest(unittest.TestCase):
     self.assertEqual('\u00fc', message.repeated_string[3])
 
   def testMergeEmptyText(self):
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     text = ''
     text_format.Merge(text, message)
-    self.assertEquals(unittest_pb2.TestAllTypes(), message)
+    self.assertEquals(unittest_py3_pb2.TestAllTypes(), message)
 
   def testMergeInvalidUtf8(self):
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     text = 'repeated_string: "\\xc3\\xc3"'
     self.assertRaises(text_format.ParseError, text_format.Merge, text, message)
 
   def testMergeSingleWord(self):
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     text = 'foo'
     self.assertRaisesWithMessage(
         text_format.ParseError,
@@ -335,7 +335,7 @@ class TextFormatTest(unittest.TestCase):
         text_format.Merge, text, message)
 
   def testMergeUnknownField(self):
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     text = 'unknown_field: 8\n'
     self.assertRaisesWithMessage(
         text_format.ParseError,
@@ -344,13 +344,13 @@ class TextFormatTest(unittest.TestCase):
         text_format.Merge, text, message)
 
   def testMergeBadExtension(self):
-    message = unittest_pb2.TestAllExtensions()
+    message = unittest_py3_pb2.TestAllExtensions()
     text = '[unknown_extension]: 8\n'
     self.assertRaisesWithMessage(
         text_format.ParseError,
         '1:2 : Extension "unknown_extension" not registered.',
         text_format.Merge, text, message)
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     self.assertRaisesWithMessage(
         text_format.ParseError,
         ('1:2 : Message type "protobuf_unittest.TestAllTypes" does not have '
@@ -358,7 +358,7 @@ class TextFormatTest(unittest.TestCase):
         text_format.Merge, text, message)
 
   def testMergeGroupNotClosed(self):
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     text = 'RepeatedGroup: <'
     self.assertRaisesWithMessage(
         text_format.ParseError, '1:16 : Expected ">".',
@@ -370,20 +370,20 @@ class TextFormatTest(unittest.TestCase):
         text_format.Merge, text, message)
 
   def testMergeEmptyGroup(self):
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     text = 'OptionalGroup: {}'
     text_format.Merge(text, message)
     self.assertTrue(message.HasField('optionalgroup'))
 
     message.Clear()
 
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     text = 'OptionalGroup: <>'
     text_format.Merge(text, message)
     self.assertTrue(message.HasField('optionalgroup'))
 
   def testMergeBadEnumValue(self):
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     text = 'optional_nested_enum: BARR'
     self.assertRaisesWithMessage(
         text_format.ParseError,
@@ -391,7 +391,7 @@ class TextFormatTest(unittest.TestCase):
          'has no value named BARR.'),
         text_format.Merge, text, message)
 
-    message = unittest_pb2.TestAllTypes()
+    message = unittest_py3_pb2.TestAllTypes()
     text = 'optional_nested_enum: 100'
     self.assertRaisesWithMessage(
         text_format.ParseError,

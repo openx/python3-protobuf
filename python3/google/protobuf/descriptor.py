@@ -80,9 +80,9 @@ class DescriptorBase(object):
     """
     if self._options:
       return self._options
-    from google.protobuf import descriptor_pb2
+    from google.protobuf import descriptor_py3_pb2
     try:
-      options_class = getattr(descriptor_pb2, self._options_class_name)
+      options_class = getattr(descriptor_py3_pb2, self._options_class_name)
     except AttributeError:
       raise RuntimeError('Unknown options class name %s!' %
                          (self._options_class_name))
@@ -136,10 +136,10 @@ class _NestedDescriptorBase(DescriptorBase):
     return desc
 
   def CopyToProto(self, proto):
-    """Copies this to the matching proto in descriptor_pb2.
+    """Copies this to the matching proto in descriptor_py3_pb2.
 
     Args:
-      proto: An empty proto instance from descriptor_pb2.
+      proto: An empty proto instance from descriptor_py3_pb2.
 
     Raises:
       Error: If self couldnt be serialized, due to to few constructor arguments.
@@ -198,7 +198,7 @@ class Descriptor(_NestedDescriptorBase):
 
     is_extendable:  Does this type define any extension ranges?
 
-    options: (descriptor_pb2.MessageOptions) Protocol message options or None
+    options: (descriptor_py3_pb2.MessageOptions) Protocol message options or None
       to use default message options.
 
     file: (FileDescriptor) Reference to file descriptor.
@@ -251,10 +251,10 @@ class Descriptor(_NestedDescriptorBase):
     self._serialized_end = serialized_end
 
   def CopyToProto(self, proto):
-    """Copies this to a descriptor_pb2.DescriptorProto.
+    """Copies this to a descriptor_py3_pb2.DescriptorProto.
 
     Args:
-      proto: An empty descriptor_pb2.DescriptorProto.
+      proto: An empty descriptor_py3_pb2.DescriptorProto.
     """
     # This function is overriden to give a better doc comment.
     super(Descriptor, self).CopyToProto(proto)
@@ -314,7 +314,7 @@ class FieldDescriptor(DescriptorBase):
       Gives the message that immediately contains this extension field.
       Will be None iff we're a top-level (file-level) extension field.
 
-    options: (descriptor_pb2.FieldOptions) Protocol message field options or
+    options: (descriptor_py3_pb2.FieldOptions) Protocol message field options or
       None to use default field options.
   """
 
@@ -423,7 +423,7 @@ class EnumDescriptor(_NestedDescriptorBase):
       top level in a .proto file.  Set by Descriptor's constructor
       if we're passed into one.
     file: (FileDescriptor) Reference to file descriptor.
-    options: (descriptor_pb2.EnumOptions) Enum options message or
+    options: (descriptor_py3_pb2.EnumOptions) Enum options message or
       None to use default enum options.
   """
 
@@ -450,10 +450,10 @@ class EnumDescriptor(_NestedDescriptorBase):
     self._serialized_end = serialized_end
 
   def CopyToProto(self, proto):
-    """Copies this to a descriptor_pb2.EnumDescriptorProto.
+    """Copies this to a descriptor_py3_pb2.EnumDescriptorProto.
 
     Args:
-      proto: An empty descriptor_pb2.EnumDescriptorProto.
+      proto: An empty descriptor_py3_pb2.EnumDescriptorProto.
     """
     # This function is overriden to give a better doc comment.
     super(EnumDescriptor, self).CopyToProto(proto)
@@ -470,7 +470,7 @@ class EnumValueDescriptor(DescriptorBase):
     type: (EnumDescriptor) EnumDescriptor to which this value
       belongs.  Set by EnumDescriptor's constructor if we're
       passed into one.
-    options: (descriptor_pb2.EnumValueOptions) Enum value options message or
+    options: (descriptor_py3_pb2.EnumValueOptions) Enum value options message or
       None to use default enum value options options.
   """
 
@@ -493,7 +493,7 @@ class ServiceDescriptor(_NestedDescriptorBase):
       definition appears withing the .proto file.
     methods: (list of MethodDescriptor) List of methods provided by this
       service.
-    options: (descriptor_pb2.ServiceOptions) Service options message or
+    options: (descriptor_py3_pb2.ServiceOptions) Service options message or
       None to use default service options.
     file: (FileDescriptor) Reference to file info.
   """
@@ -518,10 +518,10 @@ class ServiceDescriptor(_NestedDescriptorBase):
     return None
 
   def CopyToProto(self, proto):
-    """Copies this to a descriptor_pb2.ServiceDescriptorProto.
+    """Copies this to a descriptor_py3_pb2.ServiceDescriptorProto.
 
     Args:
-      proto: An empty descriptor_pb2.ServiceDescriptorProto.
+      proto: An empty descriptor_py3_pb2.ServiceDescriptorProto.
     """
     # This function is overriden to give a better doc comment.
     super(ServiceDescriptor, self).CopyToProto(proto)
@@ -538,7 +538,7 @@ class MethodDescriptor(DescriptorBase):
     method.
   input_type: The descriptor of the message that this method accepts.
   output_type: The descriptor of the message that this method returns.
-  options: (descriptor_pb2.MethodOptions) Method options message or
+  options: (descriptor_py3_pb2.MethodOptions) Method options message or
     None to use default method options.
   """
 
@@ -559,12 +559,12 @@ class MethodDescriptor(DescriptorBase):
 
 
 class FileDescriptor(DescriptorBase):
-  """Descriptor for a file. Mimics the descriptor_pb2.FileDescriptorProto.
+  """Descriptor for a file. Mimics the descriptor_py3_pb2.FileDescriptorProto.
 
   name: name of file, relative to root of source tree.
   package: name of the package
   serialized_pb: (str) Byte string of serialized
-    descriptor_pb2.FileDescriptorProto.
+    descriptor_py3_pb2.FileDescriptorProto.
   """
 
   def __init__(self, name, package, options=None, serialized_pb=None):
@@ -580,10 +580,10 @@ class FileDescriptor(DescriptorBase):
       cpp_message.BuildFile(self.serialized_pb)
 
   def CopyToProto(self, proto):
-    """Copies this to a descriptor_pb2.FileDescriptorProto.
+    """Copies this to a descriptor_py3_pb2.FileDescriptorProto.
 
     Args:
-      proto: An empty descriptor_pb2.FileDescriptorProto.
+      proto: An empty descriptor_py3_pb2.FileDescriptorProto.
     """
     proto.ParseFromString(self.serialized_pb)
 
