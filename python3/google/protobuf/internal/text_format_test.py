@@ -194,14 +194,14 @@ class TextFormatTest(unittest.TestCase):
         message, as_one_line=True, as_utf8=False)
     parsed_message = unittest_py3_pb2.TestAllTypes()
     text_format.Merge(wire_text, parsed_message)
-    self.assertEquals(message, parsed_message)
+    self.assertEqual(message, parsed_message)
 
     # Test as_utf8 = True.
     wire_text = text_format.MessageToString(
         message, as_one_line=True, as_utf8=True)
     parsed_message = unittest_py3_pb2.TestAllTypes()
     text_format.Merge(wire_text, parsed_message)
-    self.assertEquals(message, parsed_message)
+    self.assertEqual(message, parsed_message)
 
   def testPrintRawUtf8String(self):
     message = unittest_py3_pb2.TestAllTypes()
@@ -210,7 +210,7 @@ class TextFormatTest(unittest.TestCase):
     self.CompareToGoldenText(text, 'repeated_string: "\303\274\352\234\237"\n')
     parsed_message = unittest_py3_pb2.TestAllTypes()
     text_format.Merge(text, parsed_message)
-    self.assertEquals(message, parsed_message)
+    self.assertEqual(message, parsed_message)
 
   def testMessageToString(self):
     message = unittest_py3_pb2.ForeignMessage()
@@ -234,7 +234,7 @@ class TextFormatTest(unittest.TestCase):
 
     message = unittest_py3_pb2.TestAllTypes()
     test_util.SetAllFields(message)
-    self.assertEquals(message, parsed_message)
+    self.assertEqual(message, parsed_message)
 
   def testMergeGoldenExtensions(self):
     golden_text = '\n'.join(self.ReadGolden(
@@ -244,7 +244,7 @@ class TextFormatTest(unittest.TestCase):
 
     message = unittest_py3_pb2.TestAllExtensions()
     test_util.SetAllExtensions(message)
-    self.assertEquals(message, parsed_message)
+    self.assertEqual(message, parsed_message)
 
   def testMergeAllFields(self):
     message = unittest_py3_pb2.TestAllTypes()
@@ -285,8 +285,8 @@ class TextFormatTest(unittest.TestCase):
     text_format.Merge(text, message)
     ext1 = unittest_mset_py3_pb2.TestMessageSetExtension1.message_set_extension
     ext2 = unittest_mset_py3_pb2.TestMessageSetExtension2.message_set_extension
-    self.assertEquals(23, message.message_set.Extensions[ext1].i)
-    self.assertEquals('foo', message.message_set.Extensions[ext2].str)
+    self.assertEqual(23, message.message_set.Extensions[ext1].i)
+    self.assertEqual('foo', message.message_set.Extensions[ext2].str)
 
   def testMergeExotic(self):
     message = unittest_py3_pb2.TestAllTypes()
@@ -318,7 +318,7 @@ class TextFormatTest(unittest.TestCase):
     message = unittest_py3_pb2.TestAllTypes()
     text = ''
     text_format.Merge(text, message)
-    self.assertEquals(unittest_py3_pb2.TestAllTypes(), message)
+    self.assertEqual(unittest_py3_pb2.TestAllTypes(), message)
 
   def testMergeInvalidUtf8(self):
     message = unittest_py3_pb2.TestAllTypes()
@@ -558,8 +558,8 @@ class TokenizerTest(unittest.TestCase):
 
   def testInfNan(self):
     # Make sure our infinity and NaN definitions are sound.
-    self.assertEquals(float, type(text_format._INFINITY))
-    self.assertEquals(float, type(text_format._NAN))
+    self.assertEqual(float, type(text_format._INFINITY))
+    self.assertEqual(float, type(text_format._NAN))
     self.assertTrue(text_format._NAN != text_format._NAN)
 
     inf_times_zero = text_format._INFINITY * 0
