@@ -37,6 +37,7 @@ import re
 
 from collections import deque
 from google.protobuf.internal import type_checkers
+from google.protobuf.internal.utils import bytes_to_string
 from google.protobuf import descriptor
 
 __all__ = [ 'MessageToString', 'PrintMessage', 'PrintField',
@@ -536,9 +537,9 @@ class _Tokenizer(object):
     Raises:
       ParseError: If a string value couldn't be consumed.
     """
-    bytes = self.ConsumeByteString()
+    string = self.ConsumeByteString()
     try:
-      return str(bytes, 'utf-8')
+      return string
     except UnicodeDecodeError as e:
       raise self._StringParseError(e)
 
@@ -660,21 +661,20 @@ class _Tokenizer(object):
 # C++ unescaping function allows hex escapes to be any length.  So,
 # "\0011".encode('string_escape') ends up being "\\x011", which will be
 # decoded in C++ as a single-character string with char code 0x11.
-def _CEscape(text, as_utf8):
-  def escape(c):
-    o = ord(c)
-    if o == 10: return r"\n"   # optional escape
-    if o == 13: return r"\r"   # optional escape
-    if o ==  9: return r"\t"   # optional escape
-    if o == 39: return r"\'"   # optional escape
+def _CEscape(byte_array, as_utf8):
+  def escape(b):
+    if b == 10: return r"\n"   # optional escape
+    if b == 13: return r"\r"   # optional escape
+    if b ==  9: return r"\t"   # optional escape
+    if b == 39: return r"\'"   # optional escape
 
-    if o == 34: return r'\"'   # necessary escape
-    if o == 92: return r"\\"   # necessary escape
+    if b == 34: return r'\"'   # necessary escape
+    if b == 92: return r"\\"   # necessary escape
 
     # necessary escapes
-    if not as_utf8 and (o >= 127 or o < 32): return "\\%03o" % o
-    return c
-  return "".join([escape(c) for c in text])
+    if not as_utf8 and (b >= 127 or b < 32): return "\\%03o" % b
+    return chr(b)
+  return ''.join([escape(c) for c in byte_array])
 
 
 _CUNESCAPE_HEX = re.compile('\\\\x([0-9a-fA-F]{2}|[0-9a-fA-F])')
@@ -686,4 +686,6 @@ def _CUnescape(text):
   # This is required because the 'string_escape' encoding doesn't
   # allow single-digit hex escapes (like '\xf').
   result = _CUNESCAPE_HEX.sub(ReplaceHex, text)
-  return result.decode('string_escape')
+  #return result.decode('string_escape')
+  return bytes(result, 'utf-8').decode('unicode_escape')
+

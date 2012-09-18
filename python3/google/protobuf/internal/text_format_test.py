@@ -40,6 +40,7 @@ import re
 import unittest
 from google.protobuf import text_format
 from google.protobuf.internal import test_util
+from google.protobuf.internal.utils import bytes_to_string
 from google.protobuf import unittest_py3_pb2
 from google.protobuf import unittest_mset_py3_pb2
 
@@ -49,6 +50,7 @@ class TextFormatTest(unittest.TestCase):
     f = test_util.GoldenFile(golden_filename)
     golden_lines = f.readlines()
     f.close()
+    golden_lines = [bytes_to_string(line) for line in golden_lines]
     return golden_lines
 
   def CompareToGoldenFile(self, text, golden_filename):

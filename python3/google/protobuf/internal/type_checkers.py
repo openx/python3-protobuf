@@ -120,7 +120,7 @@ class UnicodeValueChecker(object):
     # encoding.
     if isinstance(proposed_value, str):
       try:
-        str(proposed_value, 'ascii')
+        str(proposed_value)
       except UnicodeDecodeError:
         raise ValueError('%.1024r has type str, but isn\'t in 7-bit ASCII '
                          'encoding. Non-ASCII strings must be converted to '

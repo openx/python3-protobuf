@@ -41,6 +41,8 @@ are:
 
 __author__ = 'petar@google.com (Petar Petrov)'
 
+from google.protobuf.internal.utils import cmp
+
 
 class BaseContainer(object):
 
@@ -141,13 +143,12 @@ class RepeatedScalarFieldContainer(BaseContainer):
 
   def __setitem__(self, key, value):
     """Sets the item on the specified position."""
-    self._type_checker.CheckValue(value)
-    self._values[key] = value
-    self._message_listener.Modified()
-
-  def __getslice__(self, start, stop):
-    """Retrieves the subset of items from between the specified indices."""
-    return self._values[start:stop]
+    if isinstance(key, slice):
+        self.__setslice__(key.start, key.stop, value)    
+    else:
+        self._type_checker.CheckValue(value)
+        self._values[key] = value
+        self._message_listener.Modified()
 
   def __setslice__(self, start, stop, values):
     """Sets the subset of items from between the specified indices."""
@@ -161,11 +162,6 @@ class RepeatedScalarFieldContainer(BaseContainer):
   def __delitem__(self, key):
     """Deletes the item at the specified position."""
     del self._values[key]
-    self._message_listener.Modified()
-
-  def __delslice__(self, start, stop):
-    """Deletes the subset of items from between the specified indices."""
-    del self._values[start:stop]
     self._message_listener.Modified()
 
   def __eq__(self, other):

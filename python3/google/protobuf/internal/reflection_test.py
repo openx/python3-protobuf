@@ -54,6 +54,7 @@ from google.protobuf.internal import more_messages_py3_pb2
 from google.protobuf.internal import wire_format
 from google.protobuf.internal import test_util
 from google.protobuf.internal import decoder
+from google.protobuf.internal.utils import string_to_bytes
 
 
 class _MiniDecoder(object):
@@ -88,12 +89,14 @@ class _MiniDecoder(object):
     return wire_format.UnpackTag(self.ReadVarint())
 
   def ReadFloat(self):
-    result = struct.unpack("<f", self._bytes[self._pos:self._pos+4])[0]
+    float_bytes = string_to_bytes(self._bytes[self._pos:self._pos+4])
+    result = struct.unpack("<f", float_bytes)[0]
     self._pos += 4
     return result
 
   def ReadDouble(self):
-    result = struct.unpack("<d", self._bytes[self._pos:self._pos+8])[0]
+    double_bytes = string_to_bytes(self._bytes[self._pos:self._pos+8])
+    result = struct.unpack("<d", double_bytes)[0]
     self._pos += 8
     return result
 

@@ -41,7 +41,7 @@ FieldDescriptor) we construct two functions:  a "sizer" and an "encoder".  The
 sizer takes a value of this field's type and computes its byte size.  The
 encoder takes a writer function and a value.  It encodes the value into byte
 strings and invokes the writer function to write those strings.  Typically the
-writer function is the write() method of a cStringIO.
+writer function is the write() method of a StringIO.
 
 We try to do as much work as possible when constructing the writer and the
 sizer rather than when calling them.  In particular:
@@ -68,6 +68,7 @@ __author__ = 'kenton@google.com (Kenton Varda)'
 
 import struct
 from google.protobuf.internal import wire_format
+from google.protobuf.internal.utils import bytes_to_string
 
 
 _POS_INF = float('inf')
@@ -487,20 +488,20 @@ def _StructPackEncoder(wire_type, format):
         write(tag_bytes)
         local_EncodeVarint(write, len(value) * value_size)
         for element in value:
-          write(local_struct_pack(format, element))
+          write(bytes_to_string(local_struct_pack(format, element)))
       return EncodePackedField
     elif is_repeated:
       tag_bytes = TagBytes(field_number, wire_type)
       def EncodeRepeatedField(write, value):
         for element in value:
           write(tag_bytes)
-          write(local_struct_pack(format, element))
+          write(bytes_to_string(local_struct_pack(format, element)))
       return EncodeRepeatedField
     else:
       tag_bytes = TagBytes(field_number, wire_type)
       def EncodeField(write, value):
         write(tag_bytes)
-        return write(local_struct_pack(format, value))
+        return write(bytes_to_string(local_struct_pack(format, value)))
       return EncodeField
 
   return SpecificEncoder
@@ -556,7 +557,7 @@ def _FloatingPointEncoder(wire_type, format):
           # This try/except block is going to be faster than any code that
           # we could write to check whether element is finite.
           try:
-            write(local_struct_pack(format, element))
+            write(bytes_to_string(local_struct_pack(format, element)))
           except SystemError:
             EncodeNonFiniteOrRaise(write, element)
       return EncodePackedField
@@ -566,7 +567,7 @@ def _FloatingPointEncoder(wire_type, format):
         for element in value:
           write(tag_bytes)
           try:
-            write(local_struct_pack(format, element))
+            write(bytes_to_string(local_struct_pack(format, element)))
           except SystemError:
             EncodeNonFiniteOrRaise(write, element)
       return EncodeRepeatedField
@@ -575,7 +576,7 @@ def _FloatingPointEncoder(wire_type, format):
       def EncodeField(write, value):
         write(tag_bytes)
         try:
-          write(local_struct_pack(format, value))
+          write(bytes_to_string(local_struct_pack(format, value)))
         except SystemError:
           EncodeNonFiniteOrRaise(write, value)
       return EncodeField
@@ -660,14 +661,14 @@ def StringEncoder(field_number, is_repeated, is_packed):
         encoded = element.encode('utf-8')
         write(tag)
         local_EncodeVarint(write, local_len(encoded))
-        write(encoded)
+        write(element)
     return EncodeRepeatedField
   else:
     def EncodeField(write, value):
       encoded = value.encode('utf-8')
       write(tag)
       local_EncodeVarint(write, local_len(encoded))
-      return write(encoded)
+      return write(value)
     return EncodeField
 
 

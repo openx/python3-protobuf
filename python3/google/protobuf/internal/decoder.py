@@ -83,6 +83,7 @@ __author__ = 'kenton@google.com (Kenton Varda)'
 import struct
 from google.protobuf.internal import encoder
 from google.protobuf.internal import wire_format
+from google.protobuf.internal.utils import string_to_bytes
 from google.protobuf import message
 
 
@@ -271,7 +272,8 @@ def _StructPackDecoder(wire_type, format):
 
   def InnerDecode(buffer, pos):
     new_pos = pos + value_size
-    result = local_unpack(format, buffer[pos:new_pos])[0]
+    buffer_bytes = string_to_bytes(buffer[pos:new_pos])
+    result = local_unpack(format, buffer_bytes)[0]
     return (result, new_pos)
   return _SimpleDecoder(wire_type, InnerDecode)
 
@@ -307,7 +309,7 @@ def _FloatDecoder():
     # Note that we expect someone up-stack to catch struct.error and convert
     # it to _DecodeError -- this way we don't have to set up exception-
     # handling blocks every time we parse one value.
-    result = local_unpack('<f', float_bytes)[0]
+    result = local_unpack('<f', string_to_bytes(float_bytes))[0]
     return (result, new_pos)
   return _SimpleDecoder(wire_format.WIRETYPE_FIXED32, InnerDecode)
 
@@ -337,7 +339,7 @@ def _DoubleDecoder():
     # Note that we expect someone up-stack to catch struct.error and convert
     # it to _DecodeError -- this way we don't have to set up exception-
     # handling blocks every time we parse one value.
-    result = local_unpack('<d', double_bytes)[0]
+    result = local_unpack('<d', string_to_bytes(double_bytes))[0]
     return (result, new_pos)
   return _SimpleDecoder(wire_format.WIRETYPE_FIXED64, InnerDecode)
 
@@ -378,7 +380,6 @@ def StringDecoder(field_number, is_repeated, is_packed, key, new_default):
   """Returns a decoder for a string field."""
 
   local_DecodeVarint = _DecodeVarint
-  local_unicode = str
 
   assert not is_packed
   if is_repeated:
@@ -394,7 +395,7 @@ def StringDecoder(field_number, is_repeated, is_packed, key, new_default):
         new_pos = pos + size
         if new_pos > end:
           raise _DecodeError('Truncated string.')
-        value.append(local_unicode(buffer[pos:new_pos], 'utf-8'))
+        value.append(buffer[pos:new_pos])
         # Predict that the next tag is another copy of the same repeated field.
         pos = new_pos + tag_len
         if buffer[new_pos:pos] != tag_bytes or new_pos == end:
@@ -407,7 +408,7 @@ def StringDecoder(field_number, is_repeated, is_packed, key, new_default):
       new_pos = pos + size
       if new_pos > end:
         raise _DecodeError('Truncated string.')
-      field_dict[key] = local_unicode(buffer[pos:new_pos], 'utf-8')
+      field_dict[key] = buffer[pos:new_pos]
       return new_pos
     return DecodeField
 

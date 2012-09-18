@@ -49,6 +49,7 @@ import unittest
 from google.protobuf import unittest_import_py3_pb2
 from google.protobuf import unittest_py3_pb2
 from google.protobuf.internal import test_util
+from google.protobuf.internal.utils import cmp
 
 
 def IsPosInf(val):

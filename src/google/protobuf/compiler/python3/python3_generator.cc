@@ -195,7 +195,8 @@ string StringifyDefaultValue(const FieldDescriptor& field) {
       return SimpleItoa(field.default_value_enum()->number());
     case FieldDescriptor::CPPTYPE_STRING:
       if (field.type() == FieldDescriptor::TYPE_STRING) {
-        return CEscape(field.default_value_string());
+        return "str(\"" + CEscape(field.default_value_string()) +
+            "\").encode(\"utf-8\")";
       } else {
         return "b\"" + CEscape(field.default_value_string()) + "\"";
       }
@@ -205,7 +206,7 @@ string StringifyDefaultValue(const FieldDescriptor& field) {
   // (We could add a default case above but then we wouldn't get the nice
   // compiler warning when a new type is added.)
   GOOGLE_LOG(FATAL) << "Not reached.";
-  return "";
+  return "None";
 }
 
 
@@ -482,11 +483,10 @@ void Generator::PrintServiceDescriptor(
 
 void Generator::PrintServiceClass(const ServiceDescriptor& descriptor) const {
   // Print the service.
-  printer_->Print("class $class_name$(service.Service):\n",
+  printer_->Print("class $class_name$(service.Service, metaclass=service_reflection.GeneratedServiceType):\n",
                   "class_name", descriptor.name());
   printer_->Indent();
   printer_->Print(
-      "__metaclass__ = service_reflection.GeneratedServiceType\n"
       "$descriptor_key$ = $descriptor_name$\n",
       "descriptor_key", kDescriptorKey,
       "descriptor_name", ModuleLevelServiceDescriptorName(descriptor));
@@ -495,11 +495,10 @@ void Generator::PrintServiceClass(const ServiceDescriptor& descriptor) const {
 
 void Generator::PrintServiceStub(const ServiceDescriptor& descriptor) const {
   // Print the service stub.
-  printer_->Print("class $class_name$_Stub($class_name$):\n",
+  printer_->Print("class $class_name$_Stub($class_name$, metaclass=service_reflection.GeneratedServiceStubType):\n",
                   "class_name", descriptor.name());
   printer_->Indent();
   printer_->Print(
-      "__metaclass__ = service_reflection.GeneratedServiceStubType\n"
       "$descriptor_key$ = $descriptor_name$\n",
       "descriptor_key", kDescriptorKey,
       "descriptor_name", ModuleLevelServiceDescriptorName(descriptor));
@@ -609,10 +608,9 @@ void Generator::PrintMessages() const {
 // Mutually recursive with PrintNestedMessages().
 void Generator::PrintMessage(
     const Descriptor& message_descriptor) const {
-  printer_->Print("class $name$(message.Message):\n", "name",
+  printer_->Print("class $name$(message.Message, metaclass=reflection.GeneratedProtocolMessageType):\n", "name",
                   message_descriptor.name());
   printer_->Indent();
-  printer_->Print("__metaclass__ = reflection.GeneratedProtocolMessageType\n");
   PrintNestedMessages(message_descriptor);
   map<string, string> m;
   m["descriptor_key"] = kDescriptorKey;
@@ -853,7 +851,8 @@ void Generator::PrintFieldDescriptor(
   m["cpp_type"] = SimpleItoa(field.cpp_type());
   m["label"] = SimpleItoa(field.label());
   m["has_default_value"] = field.has_default_value() ? "True" : "False";
-  m["default_value"] = StringifyDefaultValue(field);
+  string default_value_str = StringifyDefaultValue(field);
+  m["default_value"] = default_value_str.length()<1 ? "None" : default_value_str;
   m["is_extension"] = is_extension ? "True" : "False";
   m["options"] = OptionsValue("FieldOptions", options_string);
   // We always set message_type and enum_type to None at this point, and then
