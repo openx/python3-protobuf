@@ -583,7 +583,8 @@ def _AddMessageMethods(message_descriptor, cls):
     raise TypeError('unhashable object')
 
   def __unicode__(self):
-    return text_format.MessageToString(self, as_utf8=True).decode('utf-8')
+    return self.__str__()
+    #return text_format.MessageToString(self, as_utf8=True).decode('utf-8')
 
   # Attach the local methods to the message class.
   for key, value in locals().copy().items():

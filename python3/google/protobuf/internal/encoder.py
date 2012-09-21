@@ -658,17 +658,17 @@ def StringEncoder(field_number, is_repeated, is_packed):
   if is_repeated:
     def EncodeRepeatedField(write, value):
       for element in value:
-        encoded = element.encode('utf-8')
+        encoded = ''.join([chr(b) for b in element.encode('utf-8')])
         write(tag)
         local_EncodeVarint(write, local_len(encoded))
-        write(element)
+        write(encoded)
     return EncodeRepeatedField
   else:
     def EncodeField(write, value):
-      encoded = value.encode('utf-8')
+      encoded = ''.join([chr(b) for b in value.encode('utf-8')])
       write(tag)
       local_EncodeVarint(write, local_len(encoded))
-      return write(value)
+      return write(encoded)
     return EncodeField
 
 

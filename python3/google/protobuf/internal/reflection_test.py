@@ -511,7 +511,7 @@ class ReflectionTest(unittest.TestCase):
                      proto.default_import_enum)
 
     proto = unittest_py3_pb2.TestExtremeDefaultValues()
-    self.assertEqual('\u1234', proto.utf8_string)
+    self.assertEqual(chr(0x1234), proto.utf8_string)
 
   def testHasFieldWithUnknownFieldName(self):
     proto = unittest_py3_pb2.TestAllTypes()
@@ -1334,7 +1334,7 @@ class ReflectionTest(unittest.TestCase):
   def testStringUTF8Encoding(self):
     proto = unittest_py3_pb2.TestAllTypes()
 
-    # Assignment of a unicode object to a field of type 'bytes' is not allowed.
+    # Assignment of a string object to a field of type 'bytes' is not allowed.
     self.assertRaises(TypeError,
                       setattr, proto, 'optional_bytes', 'unicode object')
 
@@ -1368,7 +1368,7 @@ class ReflectionTest(unittest.TestCase):
     extension = extension_message.message_set_extension
 
     test_utf8 = 'Тест'
-    test_utf8_bytes = test_utf8.encode('utf-8')
+    test_utf8_bytes_str = ''.join([chr(k) for k in test_utf8.encode('utf-8')])
 
     # 'Test' in another language, using UTF-8 charset.
     proto.Extensions[extension].str = test_utf8
@@ -1391,7 +1391,7 @@ class ReflectionTest(unittest.TestCase):
 
     # Check the actual bytes on the wire.
     self.assertTrue(
-        raw.item[0].message.endswith(test_utf8_bytes))
+        raw.item[0].message.endswith(test_utf8_bytes_str))
     message2.MergeFromString(raw.item[0].message)
 
     self.assertEqual(type(message2.str), str)
@@ -1404,12 +1404,12 @@ class ReflectionTest(unittest.TestCase):
     #
     # The pure Python API always returns objects of type 'unicode' (UTF-8
     # encoded), or 'str' (in 7 bit ASCII).
-    bytes = raw.item[0].message.replace(
-        test_utf8_bytes, len(test_utf8_bytes) * '\xff')
+    bytes_loc = raw.item[0].message.replace(
+        test_utf8_bytes_str, len(test_utf8_bytes_str) * '\xff')
 
     unicode_decode_failed = False
     try:
-      message2.MergeFromString(bytes)
+      message2.MergeFromString(bytes_loc)
     except UnicodeDecodeError as e:
       unicode_decode_failed = True
     string_field = message2.str

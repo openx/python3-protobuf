@@ -195,7 +195,7 @@ class WireFormatTest(unittest.TestCase):
     # Test UTF-8 string byte size calculation.
     # 1 byte for tag, 1 byte for length, 8 bytes for content.
     self.assertEqual(10, wire_format.StringByteSize(
-        5, str('\xd0\xa2\xd0\xb5\xd1\x81\xd1\x82')))
+        5, '\xd0\xa2\xd0\xb5\xd1\x81\xd1\x82'))
 
     class MockMessage(object):
       def __init__(self, byte_size):

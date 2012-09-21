@@ -539,7 +539,10 @@ class _Tokenizer(object):
     """
     string = self.ConsumeByteString()
     try:
-      return string
+      def bytestr_to_string(bytestr):
+        return bytes([ord(c) for c in bytestr]).decode('utf-8')
+      string2 = bytestr_to_string(string)
+      return string2
     except UnicodeDecodeError as e:
       raise self._StringParseError(e)
 
@@ -685,7 +688,7 @@ def _CUnescape(text):
     return chr(int(m.group(0)[2:], 16))
   # This is required because the 'string_escape' encoding doesn't
   # allow single-digit hex escapes (like '\xf').
-  result = _CUNESCAPE_HEX.sub(ReplaceHex, text)
-  #return result.decode('string_escape')
-  return bytes(result, 'utf-8').decode('unicode_escape')
+  result = ''.join(_CUNESCAPE_HEX.sub(ReplaceHex, text))
+  ret = ''.join([w.encode('utf-8').decode('unicode_escape') if '\\' in w else w for w in re.split('([\000-\200]+)', result)])
+  return ret 
 

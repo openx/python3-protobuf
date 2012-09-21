@@ -395,7 +395,8 @@ def StringDecoder(field_number, is_repeated, is_packed, key, new_default):
         new_pos = pos + size
         if new_pos > end:
           raise _DecodeError('Truncated string.')
-        value.append(buffer[pos:new_pos])
+        decoded_str = bytes([ord(c) for c in buffer[pos:new_pos]]).decode('utf-8')
+        value.append(decoded_str)
         # Predict that the next tag is another copy of the same repeated field.
         pos = new_pos + tag_len
         if buffer[new_pos:pos] != tag_bytes or new_pos == end:
@@ -408,7 +409,8 @@ def StringDecoder(field_number, is_repeated, is_packed, key, new_default):
       new_pos = pos + size
       if new_pos > end:
         raise _DecodeError('Truncated string.')
-      field_dict[key] = buffer[pos:new_pos]
+      decoded_str = bytes([ord(c) for c in buffer[pos:new_pos]]).decode('utf-8')
+      field_dict[key] = decoded_str
       return new_pos
     return DecodeField
 

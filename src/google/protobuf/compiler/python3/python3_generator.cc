@@ -195,10 +195,9 @@ string StringifyDefaultValue(const FieldDescriptor& field) {
       return SimpleItoa(field.default_value_enum()->number());
     case FieldDescriptor::CPPTYPE_STRING:
       if (field.type() == FieldDescriptor::TYPE_STRING) {
-        return "str(\"" + CEscape(field.default_value_string()) +
-            "\").encode(\"utf-8\")";
+        return "bytes([ord(char) for char in \"" + CEscape(field.default_value_string()) + "\"]).decode('utf-8')";
       } else {
-        return "b\"" + CEscape(field.default_value_string()) + "\"";
+        return "\"" + CEscape(field.default_value_string()) + "\"";
       }
     case FieldDescriptor::CPPTYPE_MESSAGE:
       return "None";
@@ -206,7 +205,7 @@ string StringifyDefaultValue(const FieldDescriptor& field) {
   // (We could add a default case above but then we wouldn't get the nice
   // compiler warning when a new type is added.)
   GOOGLE_LOG(FATAL) << "Not reached.";
-  return "None";
+  return "";
 }
 
 

@@ -665,7 +665,8 @@ def _AddUnicodeMethod(unused_message_descriptor, cls):
   """Helper for _AddMessageMethods()."""
 
   def __unicode__(self):
-    return text_format.MessageToString(self, as_utf8=True).decode('utf-8')
+    return self.__str__()
+    #return text_format.MessageToString(self, as_utf8=True).decode('utf-8')
   cls.__unicode__ = __unicode__
 
 
