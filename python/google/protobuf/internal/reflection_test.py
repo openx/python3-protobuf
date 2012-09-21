@@ -484,7 +484,7 @@ class ReflectionTest(unittest.TestCase):
     self.assertEqual(0.0, proto.optional_float)
     self.assertEqual(0.0, proto.optional_double)
     self.assertEqual(False, proto.optional_bool)
-    self.assertEqual('', proto.optional_string)
+    self.assertEqual(u'', proto.optional_string)
     self.assertEqual('', proto.optional_bytes)
 
     self.assertEqual(41, proto.default_int32)
@@ -500,7 +500,7 @@ class ReflectionTest(unittest.TestCase):
     self.assertEqual(51.5, proto.default_float)
     self.assertEqual(52e3, proto.default_double)
     self.assertEqual(True, proto.default_bool)
-    self.assertEqual('hello', proto.default_string)
+    self.assertEqual(u'hello', proto.default_string)
     self.assertEqual('world', proto.default_bytes)
     self.assertEqual(unittest_pb2.TestAllTypes.BAR, proto.default_nested_enum)
     self.assertEqual(unittest_pb2.FOREIGN_BAR, proto.default_foreign_enum)
