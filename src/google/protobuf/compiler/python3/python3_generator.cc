@@ -850,8 +850,7 @@ void Generator::PrintFieldDescriptor(
   m["cpp_type"] = SimpleItoa(field.cpp_type());
   m["label"] = SimpleItoa(field.label());
   m["has_default_value"] = field.has_default_value() ? "True" : "False";
-  string default_value_str = StringifyDefaultValue(field);
-  m["default_value"] = default_value_str.length()<1 ? "None" : default_value_str;
+  m["default_value"] = StringifyDefaultValue(field);
   m["is_extension"] = is_extension ? "True" : "False";
   m["options"] = OptionsValue("FieldOptions", options_string);
   // We always set message_type and enum_type to None at this point, and then

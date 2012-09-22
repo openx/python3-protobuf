@@ -68,7 +68,7 @@ __author__ = 'kenton@google.com (Kenton Varda)'
 
 import struct
 from google.protobuf.internal import wire_format
-from google.protobuf.internal.utils import bytes_to_string
+from google.protobuf.internal.utils import bytes_to_string, string_to_bytestr
 
 
 _POS_INF = float('inf')
@@ -658,14 +658,14 @@ def StringEncoder(field_number, is_repeated, is_packed):
   if is_repeated:
     def EncodeRepeatedField(write, value):
       for element in value:
-        encoded = ''.join([chr(b) for b in element.encode('utf-8')])
+        encoded = string_to_bytestr(element)
         write(tag)
         local_EncodeVarint(write, local_len(encoded))
         write(encoded)
     return EncodeRepeatedField
   else:
     def EncodeField(write, value):
-      encoded = ''.join([chr(b) for b in value.encode('utf-8')])
+      encoded = string_to_bytestr(value)
       write(tag)
       local_EncodeVarint(write, local_len(encoded))
       return write(encoded)

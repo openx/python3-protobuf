@@ -83,7 +83,7 @@ __author__ = 'kenton@google.com (Kenton Varda)'
 import struct
 from google.protobuf.internal import encoder
 from google.protobuf.internal import wire_format
-from google.protobuf.internal.utils import string_to_bytes
+from google.protobuf.internal.utils import string_to_bytes, bytestr_to_string
 from google.protobuf import message
 
 
@@ -395,8 +395,7 @@ def StringDecoder(field_number, is_repeated, is_packed, key, new_default):
         new_pos = pos + size
         if new_pos > end:
           raise _DecodeError('Truncated string.')
-        decoded_str = bytes([ord(c) for c in buffer[pos:new_pos]]).decode('utf-8')
-        value.append(decoded_str)
+        value.append(bytestr_to_string(buffer[pos:new_pos]))
         # Predict that the next tag is another copy of the same repeated field.
         pos = new_pos + tag_len
         if buffer[new_pos:pos] != tag_bytes or new_pos == end:
@@ -409,8 +408,7 @@ def StringDecoder(field_number, is_repeated, is_packed, key, new_default):
       new_pos = pos + size
       if new_pos > end:
         raise _DecodeError('Truncated string.')
-      decoded_str = bytes([ord(c) for c in buffer[pos:new_pos]]).decode('utf-8')
-      field_dict[key] = decoded_str
+      field_dict[key] = bytestr_to_string(buffer[pos:new_pos])
       return new_pos
     return DecodeField
 

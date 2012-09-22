@@ -37,7 +37,7 @@ import re
 
 from collections import deque
 from google.protobuf.internal import type_checkers
-from google.protobuf.internal.utils import bytes_to_string
+from google.protobuf.internal.utils import bytes_to_string, bytestr_to_string
 from google.protobuf import descriptor
 
 __all__ = [ 'MessageToString', 'PrintMessage', 'PrintField',
@@ -537,12 +537,9 @@ class _Tokenizer(object):
     Raises:
       ParseError: If a string value couldn't be consumed.
     """
-    string = self.ConsumeByteString()
+    bytestr = self.ConsumeByteString()
     try:
-      def bytestr_to_string(bytestr):
-        return bytes([ord(c) for c in bytestr]).decode('utf-8')
-      string2 = bytestr_to_string(string)
-      return string2
+      return bytestr_to_string(bytestr)
     except UnicodeDecodeError as e:
       raise self._StringParseError(e)
 

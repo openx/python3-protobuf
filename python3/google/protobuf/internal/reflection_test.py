@@ -54,7 +54,7 @@ from google.protobuf.internal import more_messages_py3_pb2
 from google.protobuf.internal import wire_format
 from google.protobuf.internal import test_util
 from google.protobuf.internal import decoder
-from google.protobuf.internal.utils import string_to_bytes
+from google.protobuf.internal.utils import string_to_bytes, string_to_bytestr
 
 
 class _MiniDecoder(object):
@@ -1368,7 +1368,7 @@ class ReflectionTest(unittest.TestCase):
     extension = extension_message.message_set_extension
 
     test_utf8 = 'Тест'
-    test_utf8_bytes_str = ''.join([chr(k) for k in test_utf8.encode('utf-8')])
+    test_utf8_bytes_str = string_to_bytestr(test_utf8)
 
     # 'Test' in another language, using UTF-8 charset.
     proto.Extensions[extension].str = test_utf8
