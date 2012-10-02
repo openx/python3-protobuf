@@ -64,9 +64,6 @@ def GetTypeChecker(cpp_type, field_type):
     An instance of TypeChecker which can be used to verify the types
     of values assigned to a field of the specified type.
   """
-  if (cpp_type == _FieldDescriptor.CPPTYPE_STRING and
-      field_type == _FieldDescriptor.TYPE_STRING):
-    return UnicodeValueChecker()
   return _VALUE_CHECKERS[cpp_type]
 
 
@@ -115,17 +112,6 @@ class UnicodeValueChecker(object):
       message = ('%.1024r has type %s, but expected one of: %s' %
                  (proposed_value, type(proposed_value), (str, str)))
       raise TypeError(message)
-
-    # If the value is of type 'str' make sure that it is in 7-bit ASCII
-    # encoding.
-    #if isinstance(proposed_value, str):
-    #  try:
-    #    proposed_value.encode('ascii')
-    #  except UnicodeDecodeError:
-    #    raise ValueError('%.1024r has type str, but isn\'t in 7-bit ASCII '
-    #                     'encoding. Non-ASCII strings must be converted to '
-    #                     'unicode objects before being added.' %
-    #                     (proposed_value))
 
 
 class Int32ValueChecker(IntValueChecker):

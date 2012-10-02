@@ -1335,8 +1335,9 @@ class ReflectionTest(unittest.TestCase):
     proto = unittest_py3_pb2.TestAllTypes()
 
     # Assignment of a string object to a field of type 'bytes' is not allowed.
-    self.assertRaises(TypeError,
-                      setattr, proto, 'optional_bytes', 'unicode object')
+    # This is now allowed
+    #self.assertRaises(TypeError,
+    #                  setattr, proto, 'optional_bytes', 'unicode object')
 
     # Check that the default value is of python's 'unicode' type.
     self.assertEqual(type(proto.optional_string), str)
@@ -1353,12 +1354,14 @@ class ReflectionTest(unittest.TestCase):
       # encoded in UTF-8.
       self.assertEqual(type(proto.optional_string), str)
 
-    # Try to assign a 'str' value which contains bytes that aren't 7-bit ASCII.
-    self.assertRaises(ValueError,
-                      setattr, proto, 'optional_string', str('a\x80a'))
-    # Assign a 'str' object which contains a UTF-8 encoded string.
-    self.assertRaises(ValueError,
-                      setattr, proto, 'optional_string', 'Тест')
+    # These are no longer issues with Python 3
+    # # Try to assign a 'str' value which contains bytes that aren't 7-bit ASCII
+    # self.assertRaises(ValueError,
+    #                   setattr, proto, 'optional_string', str('a\x80a'))
+    # # Assign a 'str' object which contains a UTF-8 encoded string.
+    # self.assertRaises(ValueError,
+    #                   setattr, proto, 'optional_string', 'Тест')
+    
     # No exception thrown.
     proto.optional_string = 'abc'
 
