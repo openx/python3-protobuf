@@ -11,7 +11,9 @@ def string_to_bytes(text):
     #return text.encode('utf-8')
 
 def bytestr_to_string(bytestr):
-    return bytes([ord(c) for c in bytestr]).decode('utf-8')
+    #print ("C %s %s" % (bytestr, type(bytestr)))
+    return bytes([c for c in bytestr]).decode('utf-8')
 
 def string_to_bytestr(string):
-    return ''.join([chr(b) for b in string.encode('utf-8')])
+    #return b''.join([chr(b) for b in string.encode('utf-8')])
+    return string.encode('utf-8')

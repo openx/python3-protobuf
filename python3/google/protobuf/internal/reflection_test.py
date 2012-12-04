@@ -89,13 +89,13 @@ class _MiniDecoder(object):
     return wire_format.UnpackTag(self.ReadVarint())
 
   def ReadFloat(self):
-    float_bytes = string_to_bytes(self._bytes[self._pos:self._pos+4])
+    float_bytes = self._bytes[self._pos:self._pos+4]
     result = struct.unpack("<f", float_bytes)[0]
     self._pos += 4
     return result
 
   def ReadDouble(self):
-    double_bytes = string_to_bytes(self._bytes[self._pos:self._pos+8])
+    double_bytes = self._bytes[self._pos:self._pos+8]
     result = struct.unpack("<d", double_bytes)[0]
     self._pos += 8
     return result
@@ -488,7 +488,7 @@ class ReflectionTest(unittest.TestCase):
     self.assertEqual(0.0, proto.optional_double)
     self.assertEqual(False, proto.optional_bool)
     self.assertEqual('', proto.optional_string)
-    self.assertEqual('', proto.optional_bytes)
+    self.assertEqual(b'', proto.optional_bytes)
 
     self.assertEqual(41, proto.default_int32)
     self.assertEqual(42, proto.default_int64)
@@ -504,7 +504,7 @@ class ReflectionTest(unittest.TestCase):
     self.assertEqual(52e3, proto.default_double)
     self.assertEqual(True, proto.default_bool)
     self.assertEqual('hello', proto.default_string)
-    self.assertEqual('world', proto.default_bytes)
+    self.assertEqual(b'world', proto.default_bytes)
     self.assertEqual(unittest_py3_pb2.TestAllTypes.BAR, proto.default_nested_enum)
     self.assertEqual(unittest_py3_pb2.FOREIGN_BAR, proto.default_foreign_enum)
     self.assertEqual(unittest_import_py3_pb2.IMPORT_BAR,
@@ -1361,7 +1361,7 @@ class ReflectionTest(unittest.TestCase):
     # # Assign a 'str' object which contains a UTF-8 encoded string.
     # self.assertRaises(ValueError,
     #                   setattr, proto, 'optional_string', 'Тест')
-    
+
     # No exception thrown.
     proto.optional_string = 'abc'
 
@@ -1408,7 +1408,7 @@ class ReflectionTest(unittest.TestCase):
     # The pure Python API always returns objects of type 'unicode' (UTF-8
     # encoded), or 'str' (in 7 bit ASCII).
     bytes_loc = raw.item[0].message.replace(
-        test_utf8_bytes_str, len(test_utf8_bytes_str) * '\xff')
+        test_utf8_bytes_str, len(test_utf8_bytes_str) * b'\xff')
 
     unicode_decode_failed = False
     try:
@@ -1910,6 +1910,7 @@ class SerializationTest(unittest.TestCase):
     first_proto = unittest_py3_pb2.TestAllTypes()
     second_proto = unittest_py3_pb2.TestAllTypes()
     test_util.SetAllFields(first_proto)
+    #test_util.SetAllFields(second_proto)
     serialized = first_proto.SerializeToString()
     self.assertEqual(first_proto.ByteSize(), len(serialized))
     second_proto.MergeFromString(serialized)

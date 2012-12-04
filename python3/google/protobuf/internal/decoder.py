@@ -83,7 +83,8 @@ __author__ = 'kenton@google.com (Kenton Varda)'
 import struct
 from google.protobuf.internal import encoder
 from google.protobuf.internal import wire_format
-from google.protobuf.internal.utils import string_to_bytes, bytestr_to_string
+from google.protobuf.internal.utils import string_to_bytes, bytestr_to_string, \
+    bytes_to_string
 from google.protobuf import message
 
 
@@ -109,12 +110,12 @@ def _VarintDecoder(mask):
   decoder returns a (value, new_pos) pair.
   """
 
-  local_ord = ord
+  #local_ord = ord
   def DecodeVarint(buffer, pos):
     result = 0
     shift = 0
     while 1:
-      b = local_ord(buffer[pos])
+      b = buffer[pos]
       result |= ((b & 0x7f) << shift)
       pos += 1
       if not (b & 0x80):
@@ -129,12 +130,12 @@ def _VarintDecoder(mask):
 def _SignedVarintDecoder(mask):
   """Like _VarintDecoder() but decodes signed values."""
 
-  local_ord = ord
+  local_ord = bytes
   def DecodeVarint(buffer, pos):
     result = 0
     shift = 0
     while 1:
-      b = local_ord(buffer[pos])
+      b = buffer[pos]
       result |= ((b & 0x7f) << shift)
       pos += 1
       if not (b & 0x80):
@@ -170,7 +171,7 @@ def ReadTag(buffer, pos):
   """
 
   start = pos
-  while ord(buffer[pos]) & 0x80:
+  while buffer[pos] & 0x80:
     pos += 1
   pos += 1
   return (buffer[start:pos], pos)
@@ -272,7 +273,7 @@ def _StructPackDecoder(wire_type, format):
 
   def InnerDecode(buffer, pos):
     new_pos = pos + value_size
-    buffer_bytes = string_to_bytes(buffer[pos:new_pos])
+    buffer_bytes = buffer[pos:new_pos]
     result = local_unpack(format, buffer_bytes)[0]
     return (result, new_pos)
   return _SimpleDecoder(wire_type, InnerDecode)
@@ -296,20 +297,20 @@ def _FloatDecoder():
     # If this value has all its exponent bits set, then it's non-finite.
     # In Python 2.4, struct.unpack will convert it to a finite 64-bit value.
     # To avoid that, we parse it specially.
-    if ((float_bytes[3] in '\x7F\xFF')
-        and (float_bytes[2] >= '\x80')):
+    if ((float_bytes[3] in b'\x7F\xFF')
+        and (float_bytes[2] >= b'\x80')):
       # If at least one significand bit is set...
-      if float_bytes[0:3] != '\x00\x00\x80':
+      if float_bytes[0:3] != b'\x00\x00\x80':
         return (_NAN, new_pos)
       # If sign bit is set...
-      if float_bytes[3] == '\xFF':
+      if float_bytes[3] == b'\xFF':
         return (_NEG_INF, new_pos)
       return (_POS_INF, new_pos)
 
     # Note that we expect someone up-stack to catch struct.error and convert
     # it to _DecodeError -- this way we don't have to set up exception-
     # handling blocks every time we parse one value.
-    result = local_unpack('<f', string_to_bytes(float_bytes))[0]
+    result = local_unpack('<f', float_bytes)[0]
     return (result, new_pos)
   return _SimpleDecoder(wire_format.WIRETYPE_FIXED32, InnerDecode)
 
@@ -331,15 +332,15 @@ def _DoubleDecoder():
     # If this value has all its exponent bits set and at least one significand
     # bit set, it's not a number.  In Python 2.4, struct.unpack will treat it
     # as inf or -inf.  To avoid that, we treat it specially.
-    if ((double_bytes[7] in '\x7F\xFF')
-        and (double_bytes[6] >= '\xF0')
-        and (double_bytes[0:7] != '\x00\x00\x00\x00\x00\x00\xF0')):
+    if ((double_bytes[7] in b'\x7F\xFF')
+        and (double_bytes[6] >= b'\xF0')
+        and (double_bytes[0:7] != b'\x00\x00\x00\x00\x00\x00\xF0')):
       return (_NAN, new_pos)
 
     # Note that we expect someone up-stack to catch struct.error and convert
     # it to _DecodeError -- this way we don't have to set up exception-
     # handling blocks every time we parse one value.
-    result = local_unpack('<d', string_to_bytes(double_bytes))[0]
+    result = local_unpack('<d', double_bytes)[0]
     return (result, new_pos)
   return _SimpleDecoder(wire_format.WIRETYPE_FIXED64, InnerDecode)
 
@@ -627,7 +628,7 @@ def MessageSetItemDecoder(extensions_by_number):
 def _SkipVarint(buffer, pos, end):
   """Skip a varint value.  Returns the new position."""
 
-  while ord(buffer[pos]) & 0x80:
+  while buffer[pos] & 0x80:
     pos += 1
   pos += 1
   if pos > end:
@@ -707,7 +708,7 @@ def _FieldSkipper():
     """
 
     # The wire type is always in the first byte since varints are little-endian.
-    wire_type = local_ord(tag_bytes[0]) & wiretype_mask
+    wire_type = tag_bytes[0] & wiretype_mask
     return WIRETYPE_TO_SKIPPER[wire_type](buffer, pos, end)
 
   return SkipField

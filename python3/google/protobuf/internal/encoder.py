@@ -339,15 +339,15 @@ def MessageSetItemSizer(field_number):
 def _VarintEncoder():
   """Return an encoder for a basic varint value (does not include tag)."""
 
-  local_chr = chr
+  local_chr = bytes
   def EncodeVarint(write, value):
     bits = value & 0x7f
     value >>= 7
     while value:
-      write(local_chr(0x80|bits))
+      write(local_chr([0x80|bits]))
       bits = value & 0x7f
       value >>= 7
-    return write(local_chr(bits))
+    return write(local_chr([bits]))
 
   return EncodeVarint
 
@@ -356,17 +356,17 @@ def _SignedVarintEncoder():
   """Return an encoder for a basic signed varint value (does not include
   tag)."""
 
-  local_chr = chr
+  local_chr = bytes
   def EncodeSignedVarint(write, value):
     if value < 0:
       value += (1 << 64)
     bits = value & 0x7f
     value >>= 7
     while value:
-      write(local_chr(0x80|bits))
+      write(local_chr([0x80|bits]))
       bits = value & 0x7f
       value >>= 7
-    return write(local_chr(bits))
+    return write(local_chr([bits]))
 
   return EncodeSignedVarint
 
@@ -381,7 +381,7 @@ def _VarintBytes(value):
 
   pieces = []
   _EncodeVarint(pieces.append, value)
-  return "".join(pieces)
+  return b"".join(pieces)
 
 
 def TagBytes(field_number, wire_type):
@@ -488,20 +488,20 @@ def _StructPackEncoder(wire_type, format):
         write(tag_bytes)
         local_EncodeVarint(write, len(value) * value_size)
         for element in value:
-          write(bytes_to_string(local_struct_pack(format, element)))
+          write(local_struct_pack(format, element))
       return EncodePackedField
     elif is_repeated:
       tag_bytes = TagBytes(field_number, wire_type)
       def EncodeRepeatedField(write, value):
         for element in value:
           write(tag_bytes)
-          write(bytes_to_string(local_struct_pack(format, element)))
+          write(local_struct_pack(format, element))
       return EncodeRepeatedField
     else:
       tag_bytes = TagBytes(field_number, wire_type)
       def EncodeField(write, value):
         write(tag_bytes)
-        return write(bytes_to_string(local_struct_pack(format, value)))
+        return write(local_struct_pack(format, value))
       return EncodeField
 
   return SpecificEncoder
@@ -557,7 +557,7 @@ def _FloatingPointEncoder(wire_type, format):
           # This try/except block is going to be faster than any code that
           # we could write to check whether element is finite.
           try:
-            write(bytes_to_string(local_struct_pack(format, element)))
+            write(local_struct_pack(format, element))
           except SystemError:
             EncodeNonFiniteOrRaise(write, element)
       return EncodePackedField
@@ -567,7 +567,7 @@ def _FloatingPointEncoder(wire_type, format):
         for element in value:
           write(tag_bytes)
           try:
-            write(bytes_to_string(local_struct_pack(format, element)))
+            write(local_struct_pack(format, element))
           except SystemError:
             EncodeNonFiniteOrRaise(write, element)
       return EncodeRepeatedField
@@ -576,7 +576,7 @@ def _FloatingPointEncoder(wire_type, format):
       def EncodeField(write, value):
         write(tag_bytes)
         try:
-          write(bytes_to_string(local_struct_pack(format, value)))
+          write(local_struct_pack(format, value))
         except SystemError:
           EncodeNonFiniteOrRaise(write, value)
       return EncodeField
@@ -614,8 +614,8 @@ DoubleEncoder   = _FloatingPointEncoder(wire_format.WIRETYPE_FIXED64, '<d')
 def BoolEncoder(field_number, is_repeated, is_packed):
   """Returns an encoder for a boolean field."""
 
-  false_byte = chr(0)
-  true_byte = chr(1)
+  false_byte = b'\x00'
+  true_byte = b'\x01'
   if is_packed:
     tag_bytes = TagBytes(field_number, wire_format.WIRETYPE_LENGTH_DELIMITED)
     local_EncodeVarint = _EncodeVarint
@@ -682,6 +682,10 @@ def BytesEncoder(field_number, is_repeated, is_packed):
   if is_repeated:
     def EncodeRepeatedField(write, value):
       for element in value:
+        if isinstance(element, str):
+          #TODO: Might want to figure out how to fit this into type checkers
+          #raise Exception('Byte types must pass in bytes() %s' % element)
+          element = element.encode('utf-8')
         write(tag)
         local_EncodeVarint(write, local_len(element))
         write(element)
@@ -689,6 +693,10 @@ def BytesEncoder(field_number, is_repeated, is_packed):
   else:
     def EncodeField(write, value):
       write(tag)
+      if isinstance(value, str):
+        #TODO: Might want to figure out how to fit this into type checkers
+        #raise Exception('Byte types must pass in bytes() %s' % value)
+        value = value.encode('utf-8')
       local_EncodeVarint(write, local_len(value))
       return write(value)
     return EncodeField
@@ -751,7 +759,7 @@ def MessageSetItemEncoder(field_number):
       }
     }
   """
-  start_bytes = "".join([
+  start_bytes = b"".join([
       TagBytes(1, wire_format.WIRETYPE_START_GROUP),
       TagBytes(2, wire_format.WIRETYPE_VARINT),
       _VarintBytes(field_number),

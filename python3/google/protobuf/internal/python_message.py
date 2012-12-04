@@ -50,10 +50,10 @@ this file*.
 
 __author__ = 'robinson@google.com (Will Robinson)'
 
-try:
-  from io import StringIO
-except ImportError:
-  from io import StringIO
+#try:
+from io import BytesIO
+#except ImportError:
+#  from io import StringIO
 import struct
 import weakref
 
@@ -64,6 +64,7 @@ from google.protobuf.internal import encoder
 from google.protobuf.internal import message_listener as message_listener_mod
 from google.protobuf.internal import type_checkers
 from google.protobuf.internal import wire_format
+from google.protobuf.internal.utils import bytestr_to_string
 from google.protobuf import descriptor as descriptor_mod
 from google.protobuf import message as message_mod
 from google.protobuf import text_format
@@ -183,7 +184,6 @@ def _AttachFieldHelpers(cls, field_descriptor):
   is_repeated = (field_descriptor.label == _FieldDescriptor.LABEL_REPEATED)
   is_packed = (field_descriptor.has_options and
                field_descriptor.GetOptions().packed)
-
   if _IsMessageSetExtension(field_descriptor):
     field_encoder = encoder.MessageSetItemEncoder(field_descriptor.number)
     sizer = encoder.MessageSetItemSizer(field_descriptor.number)
@@ -657,7 +657,7 @@ def _AddEqualsMethod(message_descriptor, cls):
 def _AddStrMethod(message_descriptor, cls):
   """Helper for _AddMessageMethods()."""
   def __str__(self):
-    return text_format.MessageToString(self)
+    return bytestr_to_string(text_format.MessageToString(self))
   cls.__str__ = __str__
 
 
@@ -736,7 +736,7 @@ def _AddSerializePartialToStringMethod(message_descriptor, cls):
   """Helper for _AddMessageMethods()."""
 
   def SerializePartialToString(self):
-    out = StringIO()
+    out = BytesIO()
     self._InternalSerialize(out.write)
     return out.getvalue()
   cls.SerializePartialToString = SerializePartialToString

@@ -73,7 +73,7 @@ def SetAllFields(message):
   # to finish with Kenton about bytes vs. strings
   # and forcing everything to be utf8. :-/
   message.optional_string   = '115'
-  message.optional_bytes    = '116'
+  message.optional_bytes    = b'116'
 
   message.optionalgroup.a = 117
   message.optional_nested_message.bb = 118
@@ -105,7 +105,7 @@ def SetAllFields(message):
   message.repeated_double.append(212)
   message.repeated_bool.append(True)
   message.repeated_string.append('215')
-  message.repeated_bytes.append('216')
+  message.repeated_bytes.append(b'216')
 
   message.repeatedgroup.add().a = 217
   message.repeated_nested_message.add().bb = 218
@@ -134,7 +134,7 @@ def SetAllFields(message):
   message.repeated_double.append(312)
   message.repeated_bool.append(False)
   message.repeated_string.append('315')
-  message.repeated_bytes.append('316')
+  message.repeated_bytes.append(b'316')
 
   message.repeatedgroup.add().a = 317
   message.repeated_nested_message.add().bb = 318
@@ -166,7 +166,7 @@ def SetAllFields(message):
   message.default_double = 412
   message.default_bool = False
   message.default_string = '415'
-  message.default_bytes = '416'
+  message.default_bytes = b'416'
 
   message.default_nested_enum = unittest_py3_pb2.TestAllTypes.FOO
   message.default_foreign_enum = unittest_py3_pb2.FOREIGN_FOO
@@ -205,7 +205,7 @@ def SetAllExtensions(message):
   extensions[pb2.optional_double_extension] = 112
   extensions[pb2.optional_bool_extension] = True
   extensions[pb2.optional_string_extension] = '115'
-  extensions[pb2.optional_bytes_extension] = '116'
+  extensions[pb2.optional_bytes_extension] = b'116'
 
   extensions[pb2.optionalgroup_extension].a = 117
   extensions[pb2.optional_nested_message_extension].bb = 118
@@ -238,7 +238,7 @@ def SetAllExtensions(message):
   extensions[pb2.repeated_double_extension].append(212)
   extensions[pb2.repeated_bool_extension].append(True)
   extensions[pb2.repeated_string_extension].append('215')
-  extensions[pb2.repeated_bytes_extension].append('216')
+  extensions[pb2.repeated_bytes_extension].append(b'216')
 
   extensions[pb2.repeatedgroup_extension].add().a = 217
   extensions[pb2.repeated_nested_message_extension].add().bb = 218
@@ -267,7 +267,7 @@ def SetAllExtensions(message):
   extensions[pb2.repeated_double_extension].append(312)
   extensions[pb2.repeated_bool_extension].append(False)
   extensions[pb2.repeated_string_extension].append('315')
-  extensions[pb2.repeated_bytes_extension].append('316')
+  extensions[pb2.repeated_bytes_extension].append(b'316')
 
   extensions[pb2.repeatedgroup_extension].add().a = 317
   extensions[pb2.repeated_nested_message_extension].add().bb = 318
@@ -299,7 +299,7 @@ def SetAllExtensions(message):
   extensions[pb2.default_double_extension] = 412
   extensions[pb2.default_bool_extension] = False
   extensions[pb2.default_string_extension] = '415'
-  extensions[pb2.default_bytes_extension] = '416'
+  extensions[pb2.default_bytes_extension] = b'416'
 
   extensions[pb2.default_nested_enum_extension] = pb2.TestAllTypes.FOO
   extensions[pb2.default_foreign_enum_extension] = pb2.FOREIGN_FOO
@@ -346,7 +346,7 @@ def ExpectAllFieldsAndExtensionsInOrder(serialized):
   message.my_float = 1.0
   expected_strings.append(message.SerializeToString())
   message.Clear()
-  expected = ''.join(expected_strings)
+  expected = b''.join(expected_strings)
 
   if expected != serialized:
     raise ValueError('Expected %r, found %r' % (expected, serialized))
@@ -401,7 +401,7 @@ def ExpectAllFieldsSet(test_case, message):
   test_case.assertEqual(112, message.optional_double)
   test_case.assertEqual(True, message.optional_bool)
   test_case.assertEqual('115', message.optional_string)
-  test_case.assertEqual('116', message.optional_bytes)
+  test_case.assertEqual(b'116', message.optional_bytes)
 
   test_case.assertEqual(117, message.optionalgroup.a)
   test_case.assertEqual(118, message.optional_nested_message.bb)
@@ -458,7 +458,7 @@ def ExpectAllFieldsSet(test_case, message):
   test_case.assertEqual(212, message.repeated_double[0])
   test_case.assertEqual(True, message.repeated_bool[0])
   test_case.assertEqual('215', message.repeated_string[0])
-  test_case.assertEqual('216', message.repeated_bytes[0])
+  test_case.assertEqual(b'216', message.repeated_bytes[0])
 
   test_case.assertEqual(217, message.repeatedgroup[0].a)
   test_case.assertEqual(218, message.repeated_nested_message[0].bb)
@@ -486,7 +486,7 @@ def ExpectAllFieldsSet(test_case, message):
   test_case.assertEqual(312, message.repeated_double[1])
   test_case.assertEqual(False, message.repeated_bool[1])
   test_case.assertEqual('315', message.repeated_string[1])
-  test_case.assertEqual('316', message.repeated_bytes[1])
+  test_case.assertEqual(b'316', message.repeated_bytes[1])
 
   test_case.assertEqual(317, message.repeatedgroup[1].a)
   test_case.assertEqual(318, message.repeated_nested_message[1].bb)
@@ -536,7 +536,7 @@ def ExpectAllFieldsSet(test_case, message):
   test_case.assertEqual(412, message.default_double)
   test_case.assertEqual(False, message.default_bool)
   test_case.assertEqual('415', message.default_string)
-  test_case.assertEqual('416', message.default_bytes)
+  test_case.assertEqual(b'416', message.default_bytes)
 
   test_case.assertEqual(unittest_py3_pb2.TestAllTypes.FOO,
                         message.default_nested_enum)
