@@ -37,6 +37,7 @@ import re
 
 from collections import deque
 from google.protobuf.internal import type_checkers
+from google.protobuf.internal.utils import char_byte, bytestr_to_string
 from google.protobuf import descriptor
 
 __all__ = [ 'MessageToString', 'PrintMessage', 'PrintField',
@@ -403,7 +404,7 @@ class _Tokenizer(object):
     if not self.token:
       return False
     c = self.token[0]
-    return (c >= '0' and c <= '9') or c == '-' or c == '+'
+    return (c >= char_byte('0') and c <= char_byte('9')) or c == char_byte('-') or c == char_byte('+')
 
   def ConsumeIdentifier(self):
     """Consumes protocol message field identifier.
@@ -538,9 +539,9 @@ class _Tokenizer(object):
     Raises:
       ParseError: If a string value couldn't be consumed.
     """
-    bytes = self.ConsumeByteString()
+    bytestr = self.ConsumeByteString()
     try:
-      return unicode(bytes, 'utf-8')
+      return bytestr_to_string(bytestr)
     except UnicodeDecodeError, e:
       raise self._StringParseError(e)
 
@@ -554,7 +555,7 @@ class _Tokenizer(object):
       ParseError: If a byte array value couldn't be consumed.
     """
     list = [self._ConsumeSingleByteString()]
-    while len(self.token) > 0 and self.token[0] in ('\'', '"'):
+    while len(self.token) > 0 and self.token[0] in (char_byte('\''), char_byte('"')):
       list.append(self._ConsumeSingleByteString())
     return "".join(list)
 
@@ -566,7 +567,7 @@ class _Tokenizer(object):
     method only consumes one token.
     """
     text = self.token
-    if len(text) < 1 or text[0] not in ('\'', '"'):
+    if len(text) < 1 or text[0] not in (char_byte('\''), char_byte('"')):
       raise self._ParseError('Exptected string.')
 
     if len(text) < 2 or text[-1] != text[0]:
