@@ -41,6 +41,8 @@ are:
 
 __author__ = 'petar@google.com (Petar Petrov)'
 
+from google.protobuf.internal.utils import cmp
+
 
 class BaseContainer(object):
 

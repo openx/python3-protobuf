@@ -49,6 +49,7 @@ import unittest
 from google.protobuf import unittest_import_pb2
 from google.protobuf import unittest_pb2
 from google.protobuf.internal import test_util
+from google.protobuf.internal.utils import cmp
 
 # Python pre-2.6 does not have isinf() or isnan() functions, so we have
 # to provide our own.

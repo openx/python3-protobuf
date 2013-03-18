@@ -36,6 +36,7 @@ __author__ = 'petar@google.com (Petar Petrov)'
 
 import operator
 from google.protobuf.internal import _net_proto2___python
+from google.protobuf.internal.utils import cmp
 from google.protobuf import message
 
 
