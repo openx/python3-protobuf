@@ -51,11 +51,21 @@ from google.protobuf import unittest_py3_pb2
 from google.protobuf.internal import test_util
 from google.protobuf.internal.utils import cmp
 
-
+try:
+  from math import isnan, isinf
+except ImportError:
+  #Python pre-2.6 does not have isinf() or isnan() functions, so we have
+  # to provide our own.
+  def isnan(val):
+    # NaN is never equal to itself.
+    return val != val
+  def isinf(val):
+    # Infinity times zero equals NaN.
+    return not isnan(val) and isnan(val * 0)
 def IsPosInf(val):
-  return math.isinf(val) and (val > 0)
+  return isinf(val) and (val > 0)
 def IsNegInf(val):
-  return math.isinf(val) and (val < 0)
+  return isinf(val) and (val < 0)
 
 class MessageTest(unittest.TestCase):
 
@@ -134,10 +144,10 @@ class MessageTest(unittest.TestCase):
                    '\xD1\x02\x00\x00\x00\x00\x00\x00\xF8\x7F')
     golden_message = unittest_py3_pb2.TestAllTypes()
     golden_message.ParseFromString(golden_data)
-    self.assertTrue(math.isnan(golden_message.optional_float))
-    self.assertTrue(math.isnan(golden_message.optional_double))
-    self.assertTrue(math.isnan(golden_message.repeated_float[0]))
-    self.assertTrue(math.isnan(golden_message.repeated_double[0]))
+    self.assertTrue(isnan(golden_message.optional_float))
+    self.assertTrue(isnan(golden_message.optional_double))
+    self.assertTrue(isnan(golden_message.repeated_float[0]))
+    self.assertTrue(isnan(golden_message.repeated_double[0]))
     self.assertTrue(golden_message.SerializeToString() == golden_data)
 
   def testPositiveInfinityPacked(self):
@@ -163,8 +173,8 @@ class MessageTest(unittest.TestCase):
                    '\xAA\x06\x08\x00\x00\x00\x00\x00\x00\xF8\x7F')
     golden_message = unittest_py3_pb2.TestPackedTypes()
     golden_message.ParseFromString(golden_data)
-    self.assertTrue(math.isnan(golden_message.packed_float[0]))
-    self.assertTrue(math.isnan(golden_message.packed_double[0]))
+    self.assertTrue(isnan(golden_message.packed_float[0]))
+    self.assertTrue(isnan(golden_message.packed_double[0]))
     self.assertTrue(golden_message.SerializeToString() == golden_data)
 
   def testExtremeFloatValues(self):
