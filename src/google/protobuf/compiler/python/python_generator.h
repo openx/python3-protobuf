@@ -94,7 +94,7 @@ class LIBPROTOC_EXPORT Generator : public CodeGenerator {
   void PrintNestedDescriptors(const Descriptor& containing_descriptor) const;
 
   void PrintMessages() const;
-  void PrintMessage(const Descriptor& message_descriptor) const;
+  void PrintMessage(const Descriptor& message_descriptor, const char* assign="=") const;
   void PrintNestedMessages(const Descriptor& containing_descriptor) const;
 
   void FixForeignFieldsInDescriptors() const;
