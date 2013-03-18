@@ -1,6 +1,10 @@
 
-def cmp(a, b):
-    return (a > b) - (a < b)
+try:
+    import cmp
+except ImportError:
+    #No cmp function available, probably Python 3
+    def cmp(a, b):
+        return (a > b) - (a < b)
 
 def bytes_to_string(byte_array):
     return ''.join([chr(b) for b in byte_array])
@@ -17,3 +21,4 @@ def bytestr_to_string(bytestr):
 def string_to_bytestr(string):
     #return b''.join([chr(b) for b in string.encode('utf-8')])
     return string.encode('utf-8')
+
