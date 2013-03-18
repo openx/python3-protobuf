@@ -483,25 +483,29 @@ void Generator::PrintServiceDescriptor(
 
 void Generator::PrintServiceClass(const ServiceDescriptor& descriptor) const {
   // Print the service.
-  printer_->Print("class $class_name$(service.Service, metaclass=service_reflection.GeneratedServiceType):\n",
+  printer_->Print("$class_name$ = service_reflection.GeneratedServiceType('$class_name$', (service.Service,),\n",
                   "class_name", descriptor.name());
   printer_->Indent();
+  printer_->Indent();
   printer_->Print(
-      "$descriptor_key$ = $descriptor_name$\n",
+      "{'$descriptor_key$': $descriptor_name$})\n",
       "descriptor_key", kDescriptorKey,
       "descriptor_name", ModuleLevelServiceDescriptorName(descriptor));
+  printer_->Outdent();
   printer_->Outdent();
 }
 
 void Generator::PrintServiceStub(const ServiceDescriptor& descriptor) const {
   // Print the service stub.
-  printer_->Print("class $class_name$_Stub($class_name$, metaclass=service_reflection.GeneratedServiceStubType):\n",
+  printer_->Print("$class_name$_Stub = service_reflection.GeneratedServiceStubType('$class_name$_Stub', ($class_name$,),",
                   "class_name", descriptor.name());
   printer_->Indent();
+  printer_->Indent();
   printer_->Print(
-      "$descriptor_key$ = $descriptor_name$\n",
+      "{'$descriptor_key$': $descriptor_name$})\n",
       "descriptor_key", kDescriptorKey,
       "descriptor_name", ModuleLevelServiceDescriptorName(descriptor));
+  printer_->Outdent();
   printer_->Outdent();
 }
 
@@ -607,21 +611,36 @@ void Generator::PrintMessages() const {
 //
 // Mutually recursive with PrintNestedMessages().
 void Generator::PrintMessage(
-    const Descriptor& message_descriptor) const {
-  printer_->Print("class $name$(message.Message, metaclass=reflection.GeneratedProtocolMessageType):\n", "name",
-                  message_descriptor.name());
+    const Descriptor& message_descriptor, const char* assign) const {
+  if (assign==":"){
+    printer_->Print("'$name$'$assign$ reflection.GeneratedProtocolMessageType('$name$', (message.Message,),\n",
+                  "name", message_descriptor.name(), "assign", assign);
+  } else {
+    printer_->Print("$name$ $assign$ reflection.GeneratedProtocolMessageType('$name$', (message.Message,),\n",
+                  "name", message_descriptor.name(), "assign", assign);
+  }
   printer_->Indent();
-  PrintNestedMessages(message_descriptor);
+  printer_->Indent();
+  printer_->Print("{\n");
+  printer_->Indent();
   map<string, string> m;
   m["descriptor_key"] = kDescriptorKey;
   m["descriptor_name"] = ModuleLevelDescriptorName(message_descriptor);
-  printer_->Print(m, "$descriptor_key$ = $descriptor_name$\n");
+  printer_->Print(m, "'$descriptor_key$': $descriptor_name$,\n");
+  PrintNestedMessages(message_descriptor);
 
+  // TODO:I'm not sure what this is for, but it's at the end of the class dict
   printer_->Print(
-    "\n"
     "# @@protoc_insertion_point(class_scope:$full_name$)\n",
     "full_name", message_descriptor.full_name());
 
+  printer_->Outdent();
+  if (assign==":"){
+    printer_->Print("}),\n");
+  } else {
+    printer_->Print("})\n");
+  }
+  printer_->Outdent();
   printer_->Outdent();
 }
 
@@ -630,8 +649,7 @@ void Generator::PrintMessage(
 void Generator::PrintNestedMessages(
     const Descriptor& containing_descriptor) const {
   for (int i = 0; i < containing_descriptor.nested_type_count(); ++i) {
-    printer_->Print("\n");
-    PrintMessage(*containing_descriptor.nested_type(i));
+    PrintMessage(*containing_descriptor.nested_type(i), ":");
   }
 }
 
