@@ -51,14 +51,17 @@ from google.protobuf import unittest_pb2
 from google.protobuf.internal import test_util
 from google.protobuf.internal.utils import cmp
 
-# Python pre-2.6 does not have isinf() or isnan() functions, so we have
-# to provide our own.
-def isnan(val):
-  # NaN is never equal to itself.
-  return val != val
-def isinf(val):
-  # Infinity times zero equals NaN.
-  return not isnan(val) and isnan(val * 0)
+try:
+  from math import isnan, isinf
+except ImportError:
+  #Python pre-2.6 does not have isinf() or isnan() functions, so we have
+  # to provide our own.
+  def isnan(val):
+    # NaN is never equal to itself.
+    return val != val
+  def isinf(val):
+    # Infinity times zero equals NaN.
+    return not isnan(val) and isnan(val * 0)
 def IsPosInf(val):
   return isinf(val) and (val > 0)
 def IsNegInf(val):
