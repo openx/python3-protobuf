@@ -30,6 +30,8 @@
 
 # This code is meant to work on Python 2.4 and above only.
 
+from __future__ import unicode_literals
+
 """Contains a metaclass and helper functions used to create
 protocol message classes from Descriptor objects at runtime.
 

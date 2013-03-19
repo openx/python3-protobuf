@@ -33,6 +33,8 @@
 # TODO(robinson): Helpers for verbose, common checks like seeing if a
 # descriptor's cpp_type is CPPTYPE_MESSAGE.
 
+from __future__ import unicode_literals
+
 """Contains a metaclass and helper functions used to create
 protocol message classes from Descriptor objects at runtime.
 
@@ -50,10 +52,7 @@ this file*.
 
 __author__ = 'robinson@google.com (Will Robinson)'
 
-try:
-  from cStringIO import StringIO
-except ImportError:
-  from StringIO import StringIO
+from StringIO import StringIO
 import struct
 import weakref
 
@@ -64,6 +63,7 @@ from google.protobuf.internal import encoder
 from google.protobuf.internal import message_listener as message_listener_mod
 from google.protobuf.internal import type_checkers
 from google.protobuf.internal import wire_format
+from google.protobuf.internal.utils import bytestr_to_string
 from google.protobuf import descriptor as descriptor_mod
 from google.protobuf import message as message_mod
 from google.protobuf import text_format
@@ -657,7 +657,7 @@ def _AddEqualsMethod(message_descriptor, cls):
 def _AddStrMethod(message_descriptor, cls):
   """Helper for _AddMessageMethods()."""
   def __str__(self):
-    return text_format.MessageToString(self)
+    return bytestr_to_string(text_format.MessageToString(self))
   cls.__str__ = __str__
 
 

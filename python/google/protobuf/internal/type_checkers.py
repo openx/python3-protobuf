@@ -162,7 +162,7 @@ _VALUE_CHECKERS = {
         float, int, long),
     _FieldDescriptor.CPPTYPE_BOOL: TypeChecker(bool, int),
     _FieldDescriptor.CPPTYPE_ENUM: Int32ValueChecker(),
-    _FieldDescriptor.CPPTYPE_STRING: TypeChecker(str),
+    _FieldDescriptor.CPPTYPE_STRING: TypeChecker(str, unicode),
     }
 
 

@@ -28,16 +28,19 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import unicode_literals
+
 """Contains routines for printing protocol messages in text format."""
 
 __author__ = 'kenton@google.com (Kenton Varda)'
 
-import cStringIO
+import StringIO
 import re
 
 from collections import deque
 from google.protobuf.internal import type_checkers
-from google.protobuf.internal.utils import char_byte, bytestr_to_string
+from google.protobuf.internal.utils import char_byte, bytestr_to_string, \
+    string_to_bytestr, bytestr, bytes_to_string, byte_ord, string_to_bytes
 from google.protobuf import descriptor
 
 __all__ = [ 'MessageToString', 'PrintMessage', 'PrintField',
@@ -55,7 +58,7 @@ class ParseError(Exception):
 
 
 def MessageToString(message, as_utf8=False, as_one_line=False):
-  out = cStringIO.StringIO()
+  out = StringIO.StringIO()
   PrintMessage(message, out, as_utf8=as_utf8, as_one_line=as_one_line)
   result = out.getvalue()
   out.close()
@@ -77,33 +80,33 @@ def PrintField(field, value, out, indent=0, as_utf8=False, as_one_line=False):
   """Print a single field name/value pair.  For repeated fields, the value
   should be a single element."""
 
-  out.write(' ' * indent);
+  out.write(b' ' * indent);
   if field.is_extension:
-    out.write('[')
+    out.write(b'[')
     if (field.containing_type.GetOptions().message_set_wire_format and
         field.type == descriptor.FieldDescriptor.TYPE_MESSAGE and
         field.message_type == field.extension_scope and
         field.label == descriptor.FieldDescriptor.LABEL_OPTIONAL):
-      out.write(field.message_type.full_name)
+      out.write(string_to_bytestr(field.message_type.full_name))
     else:
-      out.write(field.full_name)
-    out.write(']')
+      out.write(string_to_bytestr(field.full_name))
+    out.write(b']')
   elif field.type == descriptor.FieldDescriptor.TYPE_GROUP:
     # For groups, use the capitalized name.
-    out.write(field.message_type.name)
+    out.write(string_to_bytestr(field.message_type.name))
   else:
-    out.write(field.name)
+    out.write(string_to_bytestr(field.name))
 
   if field.cpp_type != descriptor.FieldDescriptor.CPPTYPE_MESSAGE:
     # The colon is optional in this case, but our cross-language golden files
     # don't include it.
-    out.write(': ')
+    out.write(b': ')
 
   PrintFieldValue(field, value, out, indent, as_utf8, as_one_line)
   if as_one_line:
-    out.write(' ')
+    out.write(b' ')
   else:
-    out.write('\n')
+    out.write(b'\n')
 
 
 def PrintFieldValue(field, value, out, indent=0,
@@ -113,29 +116,29 @@ def PrintFieldValue(field, value, out, indent=0,
 
   if field.cpp_type == descriptor.FieldDescriptor.CPPTYPE_MESSAGE:
     if as_one_line:
-      out.write(' { ')
+      out.write(b' { ')
       PrintMessage(value, out, indent, as_utf8, as_one_line)
-      out.write('}')
+      out.write(b'}')
     else:
-      out.write(' {\n')
+      out.write(b' {\n')
       PrintMessage(value, out, indent + 2, as_utf8, as_one_line)
-      out.write(' ' * indent + '}')
+      out.write(b' ' * indent + b'}')
   elif field.cpp_type == descriptor.FieldDescriptor.CPPTYPE_ENUM:
-    out.write(field.enum_type.values_by_number[value].name)
+    out.write(string_to_bytestr(field.enum_type.values_by_number[value].name))
   elif field.cpp_type == descriptor.FieldDescriptor.CPPTYPE_STRING:
-    out.write('\"')
+    out.write(b'\"')
     if type(value) is unicode:
       out.write(_CEscape(value.encode('utf-8'), as_utf8))
     else:
       out.write(_CEscape(value, as_utf8))
-    out.write('\"')
+    out.write(b'\"')
   elif field.cpp_type == descriptor.FieldDescriptor.CPPTYPE_BOOL:
     if value:
-      out.write("true")
+      out.write(b"true")
     else:
-      out.write("false")
+      out.write(b"false")
   else:
-    out.write(str(value))
+    out.write(string_to_bytestr(str(value)))
 
 
 def Merge(text, message):
@@ -164,9 +167,9 @@ def _MergeField(tokenizer, message):
     ParseError: In case of ASCII parsing problems.
   """
   message_descriptor = message.DESCRIPTOR
-  if tokenizer.TryConsume('['):
+  if tokenizer.TryConsume(b'['):
     name = [tokenizer.ConsumeIdentifier()]
-    while tokenizer.TryConsume('.'):
+    while tokenizer.TryConsume(b'.'):
       name.append(tokenizer.ConsumeIdentifier())
     name = '.'.join(name)
 
@@ -182,7 +185,7 @@ def _MergeField(tokenizer, message):
       raise tokenizer.ParseErrorPreviousToken(
           'Extension "%s" does not extend message type "%s".' % (
               name, message_descriptor.full_name))
-    tokenizer.Consume(']')
+    tokenizer.Consume(b']')
   else:
     name = tokenizer.ConsumeIdentifier()
     field = message_descriptor.fields_by_name.get(name, None)
@@ -205,13 +208,13 @@ def _MergeField(tokenizer, message):
               message_descriptor.full_name, name))
 
   if field.cpp_type == descriptor.FieldDescriptor.CPPTYPE_MESSAGE:
-    tokenizer.TryConsume(':')
+    tokenizer.TryConsume(b':')
 
-    if tokenizer.TryConsume('<'):
-      end_token = '>'
+    if tokenizer.TryConsume(b'<'):
+      end_token = b'>'
     else:
-      tokenizer.Consume('{')
-      end_token = '}'
+      tokenizer.Consume(b'{')
+      end_token = b'}'
 
     if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
       if field.is_extension:
@@ -245,7 +248,7 @@ def _MergeScalarField(tokenizer, message, field):
     ParseError: In case of ASCII parsing problems.
     RuntimeError: On runtime errors.
   """
-  tokenizer.Consume(':')
+  tokenizer.Consume(b':')
   value = None
 
   if field.type in (descriptor.FieldDescriptor.TYPE_INT32,
@@ -315,18 +318,25 @@ class _Tokenizer(object):
   """
 
   _WHITESPACE = re.compile('(\\s|(#.*$))+', re.MULTILINE)
+  _WHITESPACE_BYTES = re.compile(b'(\\s|(#.*$))+', re.MULTILINE)
   _TOKEN = re.compile(
       '[a-zA-Z_][0-9a-zA-Z_+-]*|'           # an identifier
       '[0-9+-][0-9a-zA-Z_.+-]*|'            # a number
       '\"([^\"\n\\\\]|\\\\.)*(\"|\\\\?$)|'  # a double-quoted string
       '\'([^\'\n\\\\]|\\\\.)*(\'|\\\\?$)')  # a single-quoted string
+  _TOKEN_BYTES = re.compile(
+      b'[a-zA-Z_][0-9a-zA-Z_+-]*|'           # an identifier
+      b'[0-9+-][0-9a-zA-Z_.+-]*|'            # a number
+      b'\"([^\"\n\\\\]|\\\\.)*(\"|\\\\?$)|'  # a double-quoted string
+      b'\'([^\'\n\\\\]|\\\\.)*(\'|\\\\?$)')  # a single-quoted string
   _IDENTIFIER = re.compile('\w+')
+  _IDENTIFIER_BYTES = re.compile(b'\w+')
   _INTEGER_CHECKERS = [type_checkers.Uint32ValueChecker(),
                        type_checkers.Int32ValueChecker(),
                        type_checkers.Uint64ValueChecker(),
                        type_checkers.Int64ValueChecker()]
-  _FLOAT_INFINITY = re.compile('-?inf(inity)?f?', re.IGNORECASE)
-  _FLOAT_NAN = re.compile("nanf?", re.IGNORECASE)
+  _FLOAT_INFINITY = re.compile(b'-?inf(inity)?f?', re.IGNORECASE)
+  _FLOAT_NAN = re.compile(b"nanf?", re.IGNORECASE)
 
   def __init__(self, text_message):
     self._text_message = text_message
@@ -335,9 +345,9 @@ class _Tokenizer(object):
     self._line = -1
     self._column = 0
     self._token_start = None
-    self.token = ''
-    self._lines = deque(text_message.split('\n'))
-    self._current_line = ''
+    self.token = b''
+    self._lines = deque(text_message.split(b'\n'))
+    self._current_line = b''
     self._previous_line = 0
     self._previous_column = 0
     self._SkipWhitespace()
@@ -349,12 +359,12 @@ class _Tokenizer(object):
     Returns:
       True iff the end was reached.
     """
-    return self.token == ''
+    return self.token == b''
 
   def _PopLine(self):
     while len(self._current_line) <= self._column:
       if not self._lines:
-        self._current_line = ''
+        self._current_line = b''
         return
       self._line += 1
       self._column = 0
@@ -363,7 +373,10 @@ class _Tokenizer(object):
   def _SkipWhitespace(self):
     while True:
       self._PopLine()
-      match = self._WHITESPACE.match(self._current_line, self._column)
+      if isinstance(self._current_line, str):
+        match = self._WHITESPACE.match(self._current_line, self._column)
+      else:
+        match = self._WHITESPACE_BYTES.match(self._current_line, self._column)
       if not match:
         break
       length = len(match.group(0))
@@ -416,7 +429,8 @@ class _Tokenizer(object):
       ParseError: If an identifier couldn't be consumed.
     """
     result = self.token
-    if not self._IDENTIFIER.match(result):
+    identifier_match = self._IDENTIFIER_BYTES.match(result)
+    if not identifier_match:
       raise self._ParseError('Expected identifier.')
     self.NextToken()
     return result
@@ -497,7 +511,7 @@ class _Tokenizer(object):
     text = self.token
     if self._FLOAT_INFINITY.match(text):
       self.NextToken()
-      if text.startswith('-'):
+      if text.startswith(b'-'):
         return -_INFINITY
       return _INFINITY
 
@@ -521,10 +535,10 @@ class _Tokenizer(object):
     Raises:
       ParseError: If a boolean value couldn't be consumed.
     """
-    if self.token in ('true', 't', '1'):
+    if self.token in (b'true', b't', b'1'):
       self.NextToken()
       return True
-    elif self.token in ('false', 'f', '0'):
+    elif self.token in (b'false', b'f', b'0'):
       self.NextToken()
       return False
     else:
@@ -557,7 +571,7 @@ class _Tokenizer(object):
     list = [self._ConsumeSingleByteString()]
     while len(self.token) > 0 and self.token[0] in (char_byte('\''), char_byte('"')):
       list.append(self._ConsumeSingleByteString())
-    return "".join(list)
+    return b"".join(list)
 
   def _ConsumeSingleByteString(self):
     """Consume one token of a string literal.
@@ -595,13 +609,13 @@ class _Tokenizer(object):
       ValueError: Thrown Iff the text is not a valid integer.
     """
     pos = 0
-    if text.startswith('-'):
+    if text.startswith(b'-'):
       pos += 1
 
     base = 10
-    if text.startswith('0x', pos) or text.startswith('0X', pos):
+    if text.startswith(b'0x', pos) or text.startswith(b'0X', pos):
       base = 16
-    elif text.startswith('0', pos):
+    elif text.startswith(b'0', pos):
       base = 8
 
     # Do the actual parsing. Exception handling is propagated to caller.
@@ -647,15 +661,16 @@ class _Tokenizer(object):
     self._SkipWhitespace()
 
     if not self._lines and len(self._current_line) <= self._column:
-      self.token = ''
+      self.token = b''
       return
 
-    match = self._TOKEN.match(self._current_line, self._column)
+    match = self._TOKEN_BYTES.match(self._current_line, self._column)
+
     if match:
       token = match.group(0)
       self.token = token
     else:
-      self.token = self._current_line[self._column]
+      self.token = bytes_to_string(self._current_line[self._column])
 
 
 # text.encode('string_escape') does not seem to satisfy our needs as it
@@ -665,22 +680,22 @@ class _Tokenizer(object):
 # decoded in C++ as a single-character string with char code 0x11.
 def _CEscape(text, as_utf8):
   def escape(c):
-    o = ord(c)
-    if o == 10: return r"\n"   # optional escape
-    if o == 13: return r"\r"   # optional escape
-    if o ==  9: return r"\t"   # optional escape
-    if o == 39: return r"\'"   # optional escape
+    b = byte_ord(c)
+    if b == 10: return b"\\n"   # optional escape
+    if b == 13: return b"\\r"   # optional escape
+    if b ==  9: return b"\\t"   # optional escape
+    if b == 39: return b"\\'"   # optional escape
 
-    if o == 34: return r'\"'   # necessary escape
-    if o == 92: return r"\\"   # necessary escape
+    if b == 34: return b'\\"'   # necessary escape
+    if b == 92: return b"\\\\"   # necessary escape
 
     # necessary escapes
-    if not as_utf8 and (o >= 127 or o < 32): return "\\%03o" % o
-    return c
-  return "".join([escape(c) for c in text])
+    if not as_utf8 and (b >= 127 or b < 32): return b"\\%03o" % b
+    return bytestr(b)
+  return b"".join([escape(c) for c in text])
 
 
-_CUNESCAPE_HEX = re.compile('\\\\x([0-9a-fA-F]{2}|[0-9a-fA-F])')
+_CUNESCAPE_HEX = re.compile(b'\\\\x([0-9a-fA-F]{2}|[0-9a-fA-F])')
 
 
 def _CUnescape(text):
@@ -689,4 +704,5 @@ def _CUnescape(text):
   # This is required because the 'string_escape' encoding doesn't
   # allow single-digit hex escapes (like '\xf').
   result = _CUNESCAPE_HEX.sub(ReplaceHex, text)
-  return result.decode('string_escape')
+  return string_to_bytes(result.decode('string_escape'))
+

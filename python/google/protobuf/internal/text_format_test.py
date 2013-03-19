@@ -40,6 +40,7 @@ import re
 import unittest
 from google.protobuf import text_format
 from google.protobuf.internal import test_util
+from google.protobuf.internal.utils import string_to_bytestr
 from google.protobuf import unittest_pb2
 from google.protobuf import unittest_mset_pb2
 
@@ -49,6 +50,7 @@ class TextFormatTest(unittest.TestCase):
     f = test_util.GoldenFile(golden_filename)
     golden_lines = f.readlines()
     f.close()
+    #golden_lines = [line for line in golden_lines]
     return golden_lines
 
   def CompareToGoldenFile(self, text, golden_filename):
@@ -61,8 +63,8 @@ class TextFormatTest(unittest.TestCase):
   def CompareToGoldenLines(self, text, golden_lines):
     actual_lines = text.splitlines(1)
     self.assertEqual(golden_lines, actual_lines,
-      "Text doesn't match golden.  Diff:\n" +
-      ''.join(difflib.ndiff(golden_lines, actual_lines)))
+      "Text doesn't match golden.  Diff: %s vs. %s" %
+      (golden_lines, actual_lines))
 
   def testPrintAllFields(self):
     message = unittest_pb2.TestAllTypes()
@@ -85,14 +87,14 @@ class TextFormatTest(unittest.TestCase):
     message.message_set.Extensions[ext1].i = 23
     message.message_set.Extensions[ext2].str = 'foo'
     self.CompareToGoldenText(text_format.MessageToString(message),
-      'message_set {\n'
-      '  [protobuf_unittest.TestMessageSetExtension1] {\n'
-      '    i: 23\n'
-      '  }\n'
-      '  [protobuf_unittest.TestMessageSetExtension2] {\n'
-      '    str: \"foo\"\n'
-      '  }\n'
-      '}\n')
+      b'message_set {\n'
+      b'  [protobuf_unittest.TestMessageSetExtension1] {\n'
+      b'    i: 23\n'
+      b'  }\n'
+      b'  [protobuf_unittest.TestMessageSetExtension2] {\n'
+      b'    str: \"foo\"\n'
+      b'  }\n'
+      b'}\n')
 
   def testPrintExotic(self):
     message = unittest_pb2.TestAllTypes()
@@ -101,18 +103,18 @@ class TextFormatTest(unittest.TestCase):
     message.repeated_double.append(123.456)
     message.repeated_double.append(1.23e22)
     message.repeated_double.append(1.23e-18)
-    message.repeated_string.append('\000\001\a\b\f\n\r\t\v\\\'"')
+    message.repeated_string.append(u'\000\001\a\b\f\n\r\t\v\\\'"')
     message.repeated_string.append(u'\u00fc\ua71f')
     self.CompareToGoldenText(
       self.RemoveRedundantZeros(text_format.MessageToString(message)),
-      'repeated_int64: -9223372036854775808\n'
-      'repeated_uint64: 18446744073709551615\n'
-      'repeated_double: 123.456\n'
-      'repeated_double: 1.23e+22\n'
-      'repeated_double: 1.23e-18\n'
-      'repeated_string: '
-        '"\\000\\001\\007\\010\\014\\n\\r\\t\\013\\\\\\\'\\""\n'
-      'repeated_string: "\\303\\274\\352\\234\\237"\n')
+      b'repeated_int64: -9223372036854775808\n'
+      b'repeated_uint64: 18446744073709551615\n'
+      b'repeated_double: 123.456\n'
+      b'repeated_double: 1.23e+22\n'
+      b'repeated_double: 1.23e-18\n'
+      b'repeated_string: '
+        b'"\\000\\001\\007\\010\\014\\n\\r\\t\\013\\\\\\\'\\""\n'
+      b'repeated_string: "\\303\\274\\352\\234\\237"\n')
 
   def testPrintNestedMessageAsOneLine(self):
     message = unittest_pb2.TestAllTypes()
@@ -120,7 +122,7 @@ class TextFormatTest(unittest.TestCase):
     msg.bb = 42;
     self.CompareToGoldenText(
         text_format.MessageToString(message, as_one_line=True),
-        'repeated_nested_message { bb: 42 }')
+        b'repeated_nested_message { bb: 42 }')
 
   def testPrintRepeatedFieldsAsOneLine(self):
     message = unittest_pb2.TestAllTypes()
@@ -131,15 +133,15 @@ class TextFormatTest(unittest.TestCase):
     message.repeated_string.append("Zurich")
     self.CompareToGoldenText(
         text_format.MessageToString(message, as_one_line=True),
-        'repeated_int32: 1 repeated_int32: 1 repeated_int32: 3 '
-        'repeated_string: "Google" repeated_string: "Zurich"')
+        b'repeated_int32: 1 repeated_int32: 1 repeated_int32: 3 '
+        b'repeated_string: "Google" repeated_string: "Zurich"')
 
   def testPrintNestedNewLineInStringAsOneLine(self):
     message = unittest_pb2.TestAllTypes()
     message.optional_string = "a\nnew\nline"
     self.CompareToGoldenText(
         text_format.MessageToString(message, as_one_line=True),
-        'optional_string: "a\\nnew\\nline"')
+        b'optional_string: "a\\nnew\\nline"')
 
   def testPrintMessageSetAsOneLine(self):
     message = unittest_mset_pb2.TestMessageSetContainer()
@@ -149,14 +151,14 @@ class TextFormatTest(unittest.TestCase):
     message.message_set.Extensions[ext2].str = 'foo'
     self.CompareToGoldenText(
         text_format.MessageToString(message, as_one_line=True),
-        'message_set {'
-        ' [protobuf_unittest.TestMessageSetExtension1] {'
-        ' i: 23'
-        ' }'
-        ' [protobuf_unittest.TestMessageSetExtension2] {'
-        ' str: \"foo\"'
-        ' }'
-        ' }')
+        b'message_set {'
+        b' [protobuf_unittest.TestMessageSetExtension1] {'
+        b' i: 23'
+        b' }'
+        b' [protobuf_unittest.TestMessageSetExtension2] {'
+        b' str: \"foo\"'
+        b' }'
+        b' }')
 
   def testPrintExoticAsOneLine(self):
     message = unittest_pb2.TestAllTypes()
@@ -165,19 +167,19 @@ class TextFormatTest(unittest.TestCase):
     message.repeated_double.append(123.456)
     message.repeated_double.append(1.23e22)
     message.repeated_double.append(1.23e-18)
-    message.repeated_string.append('\000\001\a\b\f\n\r\t\v\\\'"')
+    message.repeated_string.append(u'\000\001\a\b\f\n\r\t\v\\\'"')
     message.repeated_string.append(u'\u00fc\ua71f')
     self.CompareToGoldenText(
       self.RemoveRedundantZeros(
           text_format.MessageToString(message, as_one_line=True)),
-      'repeated_int64: -9223372036854775808'
-      ' repeated_uint64: 18446744073709551615'
-      ' repeated_double: 123.456'
-      ' repeated_double: 1.23e+22'
-      ' repeated_double: 1.23e-18'
-      ' repeated_string: '
-      '"\\000\\001\\007\\010\\014\\n\\r\\t\\013\\\\\\\'\\""'
-      ' repeated_string: "\\303\\274\\352\\234\\237"')
+      b'repeated_int64: -9223372036854775808'
+      b' repeated_uint64: 18446744073709551615'
+      b' repeated_double: 123.456'
+      b' repeated_double: 1.23e+22'
+      b' repeated_double: 1.23e-18'
+      b' repeated_string: '
+      b'"\\000\\001\\007\\010\\014\\n\\r\\t\\013\\\\\\\'\\""'
+      b' repeated_string: "\\303\\274\\352\\234\\237"')
 
   def testRoundTripExoticAsOneLine(self):
     message = unittest_pb2.TestAllTypes()
@@ -186,7 +188,7 @@ class TextFormatTest(unittest.TestCase):
     message.repeated_double.append(123.456)
     message.repeated_double.append(1.23e22)
     message.repeated_double.append(1.23e-18)
-    message.repeated_string.append('\000\001\a\b\f\n\r\t\v\\\'"')
+    message.repeated_string.append(u'\000\001\a\b\f\n\r\t\v\\\'"')
     message.repeated_string.append(u'\u00fc\ua71f')
 
     # Test as_utf8 = False.
@@ -207,7 +209,7 @@ class TextFormatTest(unittest.TestCase):
     message = unittest_pb2.TestAllTypes()
     message.repeated_string.append(u'\u00fc\ua71f')
     text = text_format.MessageToString(message, as_utf8 = True)
-    self.CompareToGoldenText(text, 'repeated_string: "\303\274\352\234\237"\n')
+    self.CompareToGoldenText(text, b'repeated_string: "\303\274\352\234\237"\n')
     parsed_message = unittest_pb2.TestAllTypes()
     text_format.Merge(text, parsed_message)
     self.assertEqual(message, parsed_message)
@@ -215,20 +217,20 @@ class TextFormatTest(unittest.TestCase):
   def testMessageToString(self):
     message = unittest_pb2.ForeignMessage()
     message.c = 123
-    self.assertEqual('c: 123\n', str(message))
+    self.assertEqual(u'c: 123\n', str(message))
 
   def RemoveRedundantZeros(self, text):
     # Some platforms print 1e+5 as 1e+005.  This is fine, but we need to remove
     # these zeros in order to match the golden file.
-    text = text.replace('e+0','e+').replace('e+0','e+') \
-               .replace('e-0','e-').replace('e-0','e-')
+    text = text.replace(b'e+0',b'e+').replace(b'e+0',b'e+') \
+               .replace(b'e-0',b'e-').replace(b'e-0',b'e-')
     # Floating point fields are printed with .0 suffix even if they are
     # actualy integer numbers.
-    text = re.compile('\.0$', re.MULTILINE).sub('', text)
+    text = re.compile(b'\.0$', re.MULTILINE).sub(b'', text)
     return text
 
   def testMergeGolden(self):
-    golden_text = '\n'.join(self.ReadGolden('text_format_unittest_data.txt'))
+    golden_text = b'\n'.join(self.ReadGolden('text_format_unittest_data.txt'))
     parsed_message = unittest_pb2.TestAllTypes()
     text_format.Merge(golden_text, parsed_message)
 
@@ -237,7 +239,7 @@ class TextFormatTest(unittest.TestCase):
     self.assertEqual(message, parsed_message)
 
   def testMergeGoldenExtensions(self):
-    golden_text = '\n'.join(self.ReadGolden(
+    golden_text = b'\n'.join(self.ReadGolden(
         'text_format_unittest_extensions_data.txt'))
     parsed_message = unittest_pb2.TestAllExtensions()
     text_format.Merge(golden_text, parsed_message)
@@ -267,40 +269,40 @@ class TextFormatTest(unittest.TestCase):
 
   def testMergeMessageSet(self):
     message = unittest_pb2.TestAllTypes()
-    text = ('repeated_uint64: 1\n'
-            'repeated_uint64: 2\n')
+    text = (b'repeated_uint64: 1\n'
+            b'repeated_uint64: 2\n')
     text_format.Merge(text, message)
     self.assertEqual(1, message.repeated_uint64[0])
     self.assertEqual(2, message.repeated_uint64[1])
 
     message = unittest_mset_pb2.TestMessageSetContainer()
-    text = ('message_set {\n'
-            '  [protobuf_unittest.TestMessageSetExtension1] {\n'
-            '    i: 23\n'
-            '  }\n'
-            '  [protobuf_unittest.TestMessageSetExtension2] {\n'
-            '    str: \"foo\"\n'
-            '  }\n'
-            '}\n')
+    text = (b'message_set {\n'
+            b'  [protobuf_unittest.TestMessageSetExtension1] {\n'
+            b'    i: 23\n'
+            b'  }\n'
+            b'  [protobuf_unittest.TestMessageSetExtension2] {\n'
+            b'    str: \"foo\"\n'
+            b'  }\n'
+            b'}\n')
     text_format.Merge(text, message)
     ext1 = unittest_mset_pb2.TestMessageSetExtension1.message_set_extension
     ext2 = unittest_mset_pb2.TestMessageSetExtension2.message_set_extension
     self.assertEqual(23, message.message_set.Extensions[ext1].i)
-    self.assertEqual('foo', message.message_set.Extensions[ext2].str)
+    self.assertEqual(u'foo', message.message_set.Extensions[ext2].str)
 
   def testMergeExotic(self):
     message = unittest_pb2.TestAllTypes()
-    text = ('repeated_int64: -9223372036854775808\n'
-            'repeated_uint64: 18446744073709551615\n'
-            'repeated_double: 123.456\n'
-            'repeated_double: 1.23e+22\n'
-            'repeated_double: 1.23e-18\n'
-            'repeated_string: \n'
-            '"\\000\\001\\007\\010\\014\\n\\r\\t\\013\\\\\\\'\\""\n'
-            'repeated_string: "foo" \'corge\' "grault"\n'
-            'repeated_string: "\\303\\274\\352\\234\\237"\n'
-            'repeated_string: "\\xc3\\xbc"\n'
-            'repeated_string: "\xc3\xbc"\n')
+    text = (b'repeated_int64: -9223372036854775808\n'
+            b'repeated_uint64: 18446744073709551615\n'
+            b'repeated_double: 123.456\n'
+            b'repeated_double: 1.23e+22\n'
+            b'repeated_double: 1.23e-18\n'
+            b'repeated_string: \n'
+            b'"\\000\\001\\007\\010\\014\\n\\r\\t\\013\\\\\\\'\\""\n'
+            b'repeated_string: "foo" \'corge\' "grault"\n'
+            b'repeated_string: "\\303\\274\\352\\234\\237"\n'
+            b'repeated_string: "\\xc3\\xbc"\n'
+            b'repeated_string: "\xc3\xbc"\n')
     text_format.Merge(text, message)
 
     self.assertEqual(-9223372036854775808, message.repeated_int64[0])
@@ -309,25 +311,25 @@ class TextFormatTest(unittest.TestCase):
     self.assertEqual(1.23e22, message.repeated_double[1])
     self.assertEqual(1.23e-18, message.repeated_double[2])
     self.assertEqual(
-        '\000\001\a\b\f\n\r\t\v\\\'"', message.repeated_string[0])
-    self.assertEqual('foocorgegrault', message.repeated_string[1])
+        u'\000\001\a\b\f\n\r\t\v\\\'"', message.repeated_string[0])
+    self.assertEqual(u'foocorgegrault', message.repeated_string[1])
     self.assertEqual(u'\u00fc\ua71f', message.repeated_string[2])
     self.assertEqual(u'\u00fc', message.repeated_string[3])
 
   def testMergeEmptyText(self):
     message = unittest_pb2.TestAllTypes()
-    text = ''
+    text = b''
     text_format.Merge(text, message)
     self.assertEqual(unittest_pb2.TestAllTypes(), message)
 
   def testMergeInvalidUtf8(self):
     message = unittest_pb2.TestAllTypes()
-    text = 'repeated_string: "\\xc3\\xc3"'
+    text = b'repeated_string: "\\xc3\\xc3"'
     self.assertRaises(text_format.ParseError, text_format.Merge, text, message)
 
   def testMergeSingleWord(self):
     message = unittest_pb2.TestAllTypes()
-    text = 'foo'
+    text = b'foo'
     self.assertRaisesWithMessage(
         text_format.ParseError,
         ('1:1 : Message type "protobuf_unittest.TestAllTypes" has no field named '
@@ -336,7 +338,7 @@ class TextFormatTest(unittest.TestCase):
 
   def testMergeUnknownField(self):
     message = unittest_pb2.TestAllTypes()
-    text = 'unknown_field: 8\n'
+    text = b'unknown_field: 8\n'
     self.assertRaisesWithMessage(
         text_format.ParseError,
         ('1:1 : Message type "protobuf_unittest.TestAllTypes" has no field named '
@@ -345,7 +347,7 @@ class TextFormatTest(unittest.TestCase):
 
   def testMergeBadExtension(self):
     message = unittest_pb2.TestAllExtensions()
-    text = '[unknown_extension]: 8\n'
+    text = b'[unknown_extension]: 8\n'
     self.assertRaisesWithMessage(
         text_format.ParseError,
         '1:2 : Extension "unknown_extension" not registered.',
@@ -359,32 +361,32 @@ class TextFormatTest(unittest.TestCase):
 
   def testMergeGroupNotClosed(self):
     message = unittest_pb2.TestAllTypes()
-    text = 'RepeatedGroup: <'
+    text = b'RepeatedGroup: <'
     self.assertRaisesWithMessage(
         text_format.ParseError, '1:16 : Expected ">".',
         text_format.Merge, text, message)
 
-    text = 'RepeatedGroup: {'
+    text = b'RepeatedGroup: {'
     self.assertRaisesWithMessage(
         text_format.ParseError, '1:16 : Expected "}".',
         text_format.Merge, text, message)
 
   def testMergeEmptyGroup(self):
     message = unittest_pb2.TestAllTypes()
-    text = 'OptionalGroup: {}'
+    text = b'OptionalGroup: {}'
     text_format.Merge(text, message)
     self.assertTrue(message.HasField('optionalgroup'))
 
     message.Clear()
 
     message = unittest_pb2.TestAllTypes()
-    text = 'OptionalGroup: <>'
+    text = b'OptionalGroup: <>'
     text_format.Merge(text, message)
     self.assertTrue(message.HasField('optionalgroup'))
 
   def testMergeBadEnumValue(self):
     message = unittest_pb2.TestAllTypes()
-    text = 'optional_nested_enum: BARR'
+    text = b'optional_nested_enum: BARR'
     self.assertRaisesWithMessage(
         text_format.ParseError,
         ('1:23 : Enum type "protobuf_unittest.TestAllTypes.NestedEnum" '
@@ -392,7 +394,7 @@ class TextFormatTest(unittest.TestCase):
         text_format.Merge, text, message)
 
     message = unittest_pb2.TestAllTypes()
-    text = 'optional_nested_enum: 100'
+    text = b'optional_nested_enum: 100'
     self.assertRaisesWithMessage(
         text_format.ParseError,
         ('1:23 : Enum type "protobuf_unittest.TestAllTypes.NestedEnum" '
@@ -411,9 +413,7 @@ class TextFormatTest(unittest.TestCase):
     except e_class, expr:
       if str(expr) != e:
         msg = '%s raised, but with wrong message: "%s" instead of "%s"'
-        raise self.failureException(msg % (exc_name,
-                                           str(expr).encode('string_escape'),
-                                           e.encode('string_escape')))
+        raise self.failureException(msg % (exc_name, expr, e))
       return
     else:
       raise self.failureException('%s not raised' % exc_name)
@@ -422,80 +422,80 @@ class TextFormatTest(unittest.TestCase):
 class TokenizerTest(unittest.TestCase):
 
   def testSimpleTokenCases(self):
-    text = ('identifier1:"string1"\n     \n\n'
-            'identifier2 : \n \n123  \n  identifier3 :\'string\'\n'
-            'identifiER_4 : 1.1e+2 ID5:-0.23 ID6:\'aaaa\\\'bbbb\'\n'
-            'ID7 : "aa\\"bb"\n\n\n\n ID8: {A:inf B:-inf C:true D:false}\n'
-            'ID9: 22 ID10: -111111111111111111 ID11: -22\n'
-            'ID12: 2222222222222222222 '
-            'false_bool:  0 true_BOOL:t \n true_bool1:  1 false_BOOL1:f ' )
+    text = (b'identifier1:"string1"\n     \n\n'
+            b'identifier2 : \n \n123  \n  identifier3 :\'string\'\n'
+            b'identifiER_4 : 1.1e+2 ID5:-0.23 ID6:\'aaaa\\\'bbbb\'\n'
+            b'ID7 : "aa\\"bb"\n\n\n\n ID8: {A:inf B:-inf C:true D:false}\n'
+            b'ID9: 22 ID10: -111111111111111111 ID11: -22\n'
+            b'ID12: 2222222222222222222 '
+            b'false_bool:  0 true_BOOL:t \n true_bool1:  1 false_BOOL1:f ' )
     tokenizer = text_format._Tokenizer(text)
     methods = [(tokenizer.ConsumeIdentifier, 'identifier1'),
-               ':',
+               b':',
                (tokenizer.ConsumeString, 'string1'),
                (tokenizer.ConsumeIdentifier, 'identifier2'),
-               ':',
+               b':',
                (tokenizer.ConsumeInt32, 123),
                (tokenizer.ConsumeIdentifier, 'identifier3'),
-               ':',
+               b':',
                (tokenizer.ConsumeString, 'string'),
                (tokenizer.ConsumeIdentifier, 'identifiER_4'),
-               ':',
+               b':',
                (tokenizer.ConsumeFloat, 1.1e+2),
                (tokenizer.ConsumeIdentifier, 'ID5'),
-               ':',
+               b':',
                (tokenizer.ConsumeFloat, -0.23),
                (tokenizer.ConsumeIdentifier, 'ID6'),
-               ':',
+               b':',
                (tokenizer.ConsumeString, 'aaaa\'bbbb'),
                (tokenizer.ConsumeIdentifier, 'ID7'),
-               ':',
+               b':',
                (tokenizer.ConsumeString, 'aa\"bb'),
                (tokenizer.ConsumeIdentifier, 'ID8'),
-               ':',
-               '{',
+               b':',
+               b'{',
                (tokenizer.ConsumeIdentifier, 'A'),
-               ':',
+               b':',
                (tokenizer.ConsumeFloat, text_format._INFINITY),
                (tokenizer.ConsumeIdentifier, 'B'),
-               ':',
+               b':',
                (tokenizer.ConsumeFloat, -text_format._INFINITY),
                (tokenizer.ConsumeIdentifier, 'C'),
-               ':',
+               b':',
                (tokenizer.ConsumeBool, True),
                (tokenizer.ConsumeIdentifier, 'D'),
-               ':',
+               b':',
                (tokenizer.ConsumeBool, False),
-               '}',
+               b'}',
                (tokenizer.ConsumeIdentifier, 'ID9'),
-               ':',
+               b':',
                (tokenizer.ConsumeUint32, 22),
                (tokenizer.ConsumeIdentifier, 'ID10'),
-               ':',
+               b':',
                (tokenizer.ConsumeInt64, -111111111111111111),
                (tokenizer.ConsumeIdentifier, 'ID11'),
-               ':',
+               b':',
                (tokenizer.ConsumeInt32, -22),
                (tokenizer.ConsumeIdentifier, 'ID12'),
-               ':',
+               b':',
                (tokenizer.ConsumeUint64, 2222222222222222222),
                (tokenizer.ConsumeIdentifier, 'false_bool'),
-               ':',
+               b':',
                (tokenizer.ConsumeBool, False),
                (tokenizer.ConsumeIdentifier, 'true_BOOL'),
-               ':',
+               b':',
                (tokenizer.ConsumeBool, True),
                (tokenizer.ConsumeIdentifier, 'true_bool1'),
-               ':',
+               b':',
                (tokenizer.ConsumeBool, True),
                (tokenizer.ConsumeIdentifier, 'false_BOOL1'),
-               ':',
+               b':',
                (tokenizer.ConsumeBool, False)]
 
     i = 0
     while not tokenizer.AtEnd():
       m = methods[i]
-      if type(m) == str:
+      if type(m) == bytes:
         token = tokenizer.token
         self.assertEqual(token, m)
         tokenizer.NextToken()
@@ -508,7 +508,7 @@ class TokenizerTest(unittest.TestCase):
     # as the '0' special cases.
     int64_max = (1 << 63) - 1
     uint32_max = (1 << 32) - 1
-    text = '-1 %d %d' % (uint32_max + 1, int64_max + 1)
+    text = string_to_bytestr('-1 %d %d' % (uint32_max + 1, int64_max + 1))
     tokenizer = text_format._Tokenizer(text)
     self.assertRaises(text_format.ParseError, tokenizer.ConsumeUint32)
     self.assertRaises(text_format.ParseError, tokenizer.ConsumeUint64)
@@ -522,7 +522,7 @@ class TokenizerTest(unittest.TestCase):
     self.assertEqual(int64_max + 1, tokenizer.ConsumeUint64())
     self.assertTrue(tokenizer.AtEnd())
 
-    text = '-0 -0 0 0'
+    text = b'-0 -0 0 0'
     tokenizer = text_format._Tokenizer(text)
     self.assertEqual(0, tokenizer.ConsumeUint32())
     self.assertEqual(0, tokenizer.ConsumeUint64())
@@ -531,28 +531,28 @@ class TokenizerTest(unittest.TestCase):
     self.assertTrue(tokenizer.AtEnd())
 
   def testConsumeByteString(self):
-    text = '"string1\''
+    text = b'"string1\''
     tokenizer = text_format._Tokenizer(text)
     self.assertRaises(text_format.ParseError, tokenizer.ConsumeByteString)
 
-    text = 'string1"'
+    text = b'string1"'
     tokenizer = text_format._Tokenizer(text)
     self.assertRaises(text_format.ParseError, tokenizer.ConsumeByteString)
 
-    text = '\n"\\xt"'
+    text = b'\n"\\xt"'
     tokenizer = text_format._Tokenizer(text)
     self.assertRaises(text_format.ParseError, tokenizer.ConsumeByteString)
 
-    text = '\n"\\"'
+    text = b'\n"\\"'
     tokenizer = text_format._Tokenizer(text)
     self.assertRaises(text_format.ParseError, tokenizer.ConsumeByteString)
 
-    text = '\n"\\x"'
+    text = b'\n"\\x"'
     tokenizer = text_format._Tokenizer(text)
     self.assertRaises(text_format.ParseError, tokenizer.ConsumeByteString)
 
   def testConsumeBool(self):
-    text = 'not-a-bool'
+    text = b'not-a-bool'
     tokenizer = text_format._Tokenizer(text)
     self.assertRaises(text_format.ParseError, tokenizer.ConsumeBool)
 

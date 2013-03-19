@@ -28,6 +28,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import unicode_literals
+
 """Code for encoding protocol message primitives.
 
 Contains the logic for encoding every logical protocol field type
@@ -68,7 +70,8 @@ __author__ = 'kenton@google.com (Kenton Varda)'
 
 import struct
 from google.protobuf.internal import wire_format
-from google.protobuf.internal.utils import string_to_bytestr
+from google.protobuf.internal.utils import string_to_bytestr,\
+    bytestr
 
 
 # This will overflow and thus become IEEE-754 "infinity".  We would use
@@ -341,15 +344,14 @@ def MessageSetItemSizer(field_number):
 def _VarintEncoder():
   """Return an encoder for a basic varint value (does not include tag)."""
 
-  local_chr = chr
   def EncodeVarint(write, value):
     bits = value & 0x7f
     value >>= 7
     while value:
-      write(local_chr(0x80|bits))
+      write(bytestr(0x80|bits))
       bits = value & 0x7f
       value >>= 7
-    return write(local_chr(bits))
+    return write(bytestr(bits))
 
   return EncodeVarint
 
@@ -358,17 +360,16 @@ def _SignedVarintEncoder():
   """Return an encoder for a basic signed varint value (does not include
   tag)."""
 
-  local_chr = chr
   def EncodeSignedVarint(write, value):
     if value < 0:
       value += (1 << 64)
     bits = value & 0x7f
     value >>= 7
     while value:
-      write(local_chr(0x80|bits))
+      write(bytestr(0x80|bits))
       bits = value & 0x7f
       value >>= 7
-    return write(local_chr(bits))
+    return write(bytestr(bits))
 
   return EncodeSignedVarint
 
@@ -383,7 +384,7 @@ def _VarintBytes(value):
 
   pieces = []
   _EncodeVarint(pieces.append, value)
-  return "".join(pieces)
+  return b"".join(pieces)
 
 
 def TagBytes(field_number, wire_type):
@@ -526,21 +527,21 @@ def _FloatingPointEncoder(wire_type, format):
     def EncodeNonFiniteOrRaise(write, value):
       # Remember that the serialized form uses little-endian byte order.
       if value == _POS_INF:
-        write('\x00\x00\x80\x7F')
+        write(b'\x00\x00\x80\x7F')
       elif value == _NEG_INF:
-        write('\x00\x00\x80\xFF')
+        write(b'\x00\x00\x80\xFF')
       elif value != value:           # NaN
-        write('\x00\x00\xC0\x7F')
+        write(b'\x00\x00\xC0\x7F')
       else:
         raise
   elif value_size == 8:
     def EncodeNonFiniteOrRaise(write, value):
       if value == _POS_INF:
-        write('\x00\x00\x00\x00\x00\x00\xF0\x7F')
+        write(b'\x00\x00\x00\x00\x00\x00\xF0\x7F')
       elif value == _NEG_INF:
-        write('\x00\x00\x00\x00\x00\x00\xF0\xFF')
+        write(b'\x00\x00\x00\x00\x00\x00\xF0\xFF')
       elif value != value:                         # NaN
-        write('\x00\x00\x00\x00\x00\x00\xF8\x7F')
+        write(b'\x00\x00\x00\x00\x00\x00\xF8\x7F')
       else:
         raise
   else:
@@ -605,19 +606,19 @@ SInt32Encoder = SInt64Encoder = _ModifiedEncoder(
 # formats, they will also have the same size across all platforms (as opposed
 # to without the prefix, where their sizes depend on the C compiler's basic
 # type sizes).
-Fixed32Encoder  = _StructPackEncoder(wire_format.WIRETYPE_FIXED32, '<I')
-Fixed64Encoder  = _StructPackEncoder(wire_format.WIRETYPE_FIXED64, '<Q')
-SFixed32Encoder = _StructPackEncoder(wire_format.WIRETYPE_FIXED32, '<i')
-SFixed64Encoder = _StructPackEncoder(wire_format.WIRETYPE_FIXED64, '<q')
-FloatEncoder    = _FloatingPointEncoder(wire_format.WIRETYPE_FIXED32, '<f')
-DoubleEncoder   = _FloatingPointEncoder(wire_format.WIRETYPE_FIXED64, '<d')
+Fixed32Encoder  = _StructPackEncoder(wire_format.WIRETYPE_FIXED32, b'<I')
+Fixed64Encoder  = _StructPackEncoder(wire_format.WIRETYPE_FIXED64, b'<Q')
+SFixed32Encoder = _StructPackEncoder(wire_format.WIRETYPE_FIXED32, b'<i')
+SFixed64Encoder = _StructPackEncoder(wire_format.WIRETYPE_FIXED64, b'<q')
+FloatEncoder    = _FloatingPointEncoder(wire_format.WIRETYPE_FIXED32, b'<f')
+DoubleEncoder   = _FloatingPointEncoder(wire_format.WIRETYPE_FIXED64, b'<d')
 
 
 def BoolEncoder(field_number, is_repeated, is_packed):
   """Returns an encoder for a boolean field."""
 
-  false_byte = chr(0)
-  true_byte = chr(1)
+  false_byte = bytestr(0)
+  true_byte = bytestr(1)
   if is_packed:
     tag_bytes = TagBytes(field_number, wire_format.WIRETYPE_LENGTH_DELIMITED)
     local_EncodeVarint = _EncodeVarint
@@ -753,7 +754,7 @@ def MessageSetItemEncoder(field_number):
       }
     }
   """
-  start_bytes = "".join([
+  start_bytes = b"".join([
       TagBytes(1, wire_format.WIRETYPE_START_GROUP),
       TagBytes(2, wire_format.WIRETYPE_VARINT),
       _VarintBytes(field_number),

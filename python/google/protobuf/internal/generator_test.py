@@ -34,6 +34,8 @@
 # first, since it's testing the subtler code, and since it provides decent
 # indirect testing of the protocol compiler output.
 
+from __future__ import unicode_literals
+
 """Unittest that directly tests the output of the pure-Python protocol
 compiler.  See //google/protobuf/reflection_test.py for a test which
 further ensures that we can use Python protocol message objects as we expect.
