@@ -34,23 +34,37 @@ from __future__ import unicode_literals
 
 __author__ = 'kenton@google.com (Kenton Varda)'
 
-import StringIO
+try:
+    from StringIO import StringIO as SimIO
+except ImportError:
+    from io import BytesIO as SimIO
 import re
 
 from collections import deque
+import sys
+#TODO: See if there is a better way to do this
+if sys.version > '3':
+    import codecs
+    string_escape = codecs.getdecoder('unicode_escape')
+    def loc_string_escape(input):
+        return string_escape(input)[0]
+else:
+    def loc_string_escape(input):
+        return input.decode('string_escape')
+
 from google.protobuf.internal import type_checkers
-from google.protobuf.internal.utils import char_byte, bytestr_to_string, \
-    string_to_bytestr, bytestr, bytes_to_string, byte_ord, string_to_bytes
+from google.protobuf.internal.utils import bytes_to_string, \
+    bytestr_to_string, string_to_bytestr, string_to_bytes, \
+    char_byte, byte_ord, bytestr, single_byte
 from google.protobuf import descriptor
 
 __all__ = [ 'MessageToString', 'PrintMessage', 'PrintField',
             'PrintFieldValue', 'Merge' ]
 
 
-# Infinity and NaN are not explicitly supported by Python pre-2.6, and
-# float('inf') does not work on Windows (pre-2.6).
-_INFINITY = 1e10000    # overflows, thus will actually be infinity.
-_NAN = _INFINITY * 0
+# These constants won't work on Windows pre-Python-2.6.
+_INFINITY = float('inf')
+_NAN = float('nan')
 
 
 class ParseError(Exception):
@@ -58,7 +72,7 @@ class ParseError(Exception):
 
 
 def MessageToString(message, as_utf8=False, as_one_line=False):
-  out = StringIO.StringIO()
+  out = SimIO()
   PrintMessage(message, out, as_utf8=as_utf8, as_one_line=as_one_line)
   result = out.getvalue()
   out.close()
@@ -433,7 +447,7 @@ class _Tokenizer(object):
     if not identifier_match:
       raise self._ParseError('Expected identifier.')
     self.NextToken()
-    return result
+    return bytes_to_string(result)
 
   def ConsumeInt32(self):
     """Consumes a signed 32bit integer number.
@@ -446,7 +460,7 @@ class _Tokenizer(object):
     """
     try:
       result = self._ParseInteger(self.token, is_signed=True, is_long=False)
-    except ValueError, e:
+    except ValueError as e:
       raise self._IntegerParseError(e)
     self.NextToken()
     return result
@@ -462,7 +476,7 @@ class _Tokenizer(object):
     """
     try:
       result = self._ParseInteger(self.token, is_signed=False, is_long=False)
-    except ValueError, e:
+    except ValueError as e:
       raise self._IntegerParseError(e)
     self.NextToken()
     return result
@@ -478,7 +492,7 @@ class _Tokenizer(object):
     """
     try:
       result = self._ParseInteger(self.token, is_signed=True, is_long=True)
-    except ValueError, e:
+    except ValueError as e:
       raise self._IntegerParseError(e)
     self.NextToken()
     return result
@@ -494,7 +508,7 @@ class _Tokenizer(object):
     """
     try:
       result = self._ParseInteger(self.token, is_signed=False, is_long=True)
-    except ValueError, e:
+    except ValueError as e:
       raise self._IntegerParseError(e)
     self.NextToken()
     return result
@@ -521,7 +535,7 @@ class _Tokenizer(object):
 
     try:
       result = float(text)
-    except ValueError, e:
+    except ValueError as e:
       raise self._FloatParseError(e)
     self.NextToken()
     return result
@@ -553,10 +567,10 @@ class _Tokenizer(object):
     Raises:
       ParseError: If a string value couldn't be consumed.
     """
-    bytestr = self.ConsumeByteString()
+    bytes_str = self.ConsumeByteString()
     try:
-      return bytestr_to_string(bytestr)
-    except UnicodeDecodeError, e:
+      return bytestr_to_string(bytes_str)
+    except UnicodeDecodeError as e:
       raise self._StringParseError(e)
 
   def ConsumeByteString(self):
@@ -589,7 +603,7 @@ class _Tokenizer(object):
 
     try:
       result = _CUnescape(text[1:-1])
-    except ValueError, e:
+    except ValueError as e:
       raise self._ParseError(str(e))
     self.NextToken()
     return result
@@ -670,7 +684,7 @@ class _Tokenizer(object):
       token = match.group(0)
       self.token = token
     else:
-      self.token = bytes_to_string(self._current_line[self._column])
+      self.token = single_byte(self._current_line[self._column])
 
 
 # text.encode('string_escape') does not seem to satisfy our needs as it
@@ -678,7 +692,7 @@ class _Tokenizer(object):
 # C++ unescaping function allows hex escapes to be any length.  So,
 # "\0011".encode('string_escape') ends up being "\\x011", which will be
 # decoded in C++ as a single-character string with char code 0x11.
-def _CEscape(text, as_utf8):
+def _CEscape(byte_array, as_utf8):
   def escape(c):
     b = byte_ord(c)
     if b == 10: return b"\\n"   # optional escape
@@ -690,9 +704,9 @@ def _CEscape(text, as_utf8):
     if b == 92: return b"\\\\"   # necessary escape
 
     # necessary escapes
-    if not as_utf8 and (b >= 127 or b < 32): return b"\\%03o" % b
+    if not as_utf8 and (b >= 127 or b < 32): return string_to_bytes("\\%03o" % b)
     return bytestr(b)
-  return b"".join([escape(c) for c in text])
+  return b"".join([escape(c) for c in byte_array])
 
 
 _CUNESCAPE_HEX = re.compile(b'\\\\x([0-9a-fA-F]{2}|[0-9a-fA-F])')
@@ -700,9 +714,9 @@ _CUNESCAPE_HEX = re.compile(b'\\\\x([0-9a-fA-F]{2}|[0-9a-fA-F])')
 
 def _CUnescape(text):
   def ReplaceHex(m):
-    return chr(int(m.group(0)[2:], 16))
+    return bytestr(int(m.group(0)[2:], 16))
   # This is required because the 'string_escape' encoding doesn't
   # allow single-digit hex escapes (like '\xf').
   result = _CUNESCAPE_HEX.sub(ReplaceHex, text)
-  return string_to_bytes(result.decode('string_escape'))
+  return string_to_bytes(loc_string_escape(result))
 

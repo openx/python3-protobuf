@@ -30,3 +30,6 @@ def bytestr(val):
     """Pass in an integer val"""
     return chr(val)
 
+def single_byte(byte_val):
+    return byte_val
+

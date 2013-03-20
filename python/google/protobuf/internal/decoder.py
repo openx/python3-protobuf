@@ -91,9 +91,9 @@ from google.protobuf import message
 
 # This will overflow and thus become IEEE-754 "infinity".  We would use
 # "float('inf')" but it doesn't work on Windows pre-Python-2.6.
-_POS_INF = 1e10000
-_NEG_INF = -_POS_INF
-_NAN = _POS_INF * 0
+_POS_INF = float('inf')
+_NEG_INF = float('-inf')
+_NAN = float('nan')
 
 
 # This is not for optimization, but rather to avoid conflicts with local

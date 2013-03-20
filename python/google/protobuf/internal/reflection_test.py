@@ -58,6 +58,7 @@ from google.protobuf.internal import test_util
 from google.protobuf.internal import decoder
 from google.protobuf.internal.utils import string_to_bytestr
 
+
 class _MiniDecoder(object):
   """Decodes a stream of values from a string.
 
@@ -90,12 +91,14 @@ class _MiniDecoder(object):
     return wire_format.UnpackTag(self.ReadVarint())
 
   def ReadFloat(self):
-    result = struct.unpack("<f", self._bytes[self._pos:self._pos+4])[0]
+    float_bytes = self._bytes[self._pos:self._pos+4]
+    result = struct.unpack("<f", float_bytes)[0]
     self._pos += 4
     return result
 
   def ReadDouble(self):
-    result = struct.unpack("<d", self._bytes[self._pos:self._pos+8])[0]
+    double_bytes = self._bytes[self._pos:self._pos+8]
+    result = struct.unpack("<d", double_bytes)[0]
     self._pos += 8
     return result
 
@@ -421,7 +424,7 @@ class ReflectionTest(unittest.TestCase):
     proto.repeated_string.extend(['foo', 'bar'])
     proto.repeated_string.extend([])
     proto.repeated_string.append('baz')
-    proto.repeated_string.extend(str(x) for x in xrange(2))
+    proto.repeated_string.extend(unicode(x) for x in xrange(2))
     proto.optional_int32 = 21
     proto.repeated_bool  # Access but don't set anything; should not be listed.
     self.assertEqual(
@@ -510,7 +513,7 @@ class ReflectionTest(unittest.TestCase):
                      proto.default_import_enum)
 
     proto = unittest_pb2.TestExtremeDefaultValues()
-    self.assertEqual('\u1234', proto.utf8_string)
+    self.assertEqual(unichr(0x1234), proto.utf8_string)
 
   def testHasFieldWithUnknownFieldName(self):
     proto = unittest_pb2.TestAllTypes()
@@ -848,9 +851,11 @@ class ReflectionTest(unittest.TestCase):
         containing_type=None, nested_types=[], enum_types=[],
         fields=[foo_field_descriptor], extensions=[],
         options=descriptor_pb2.MessageOptions())
-    MyProtoClass = reflection.GeneratedProtocolMessageType(b'MyProtoClass',
-                                                           (message.Message,),
-                                                           {'DESCRIPTOR': mydescriptor})
+    #The first input has to be a string, and literals are unicode
+    MyProtoClass \
+        = reflection.GeneratedProtocolMessageType(str('MyProtoClass'),
+                                                  (message.Message,),
+                                                  {'DESCRIPTOR': mydescriptor})
     myproto_instance = MyProtoClass()
     self.assertEqual(0, myproto_instance.foo_field)
     self.assertTrue(not myproto_instance.HasField('foo_field'))
@@ -1346,20 +1351,14 @@ class ReflectionTest(unittest.TestCase):
     self.assertEqual(proto.optional_string, str('Testing'))
 
     # Assign a value of type 'str' which can be encoded in UTF-8.
-    proto.optional_string = str('Testing')
+    proto.optional_string = unicode('Testing')
     self.assertEqual(proto.optional_string, unicode('Testing'))
 
     if api_implementation.Type() == 'python':
       # Values of type 'str' are also accepted as long as they can be
       # encoded in UTF-8.
-      self.assertEqual(type(proto.optional_string), str)
+      self.assertEqual(type(proto.optional_string), unicode)
 
-    # Try to assign a 'str' value which contains bytes that aren't 7-bit ASCII.
-    #self.assertRaises(ValueError,
-    #                  setattr, proto, 'optional_string', str('a\x80a'))
-    # Assign a 'str' object which contains a UTF-8 encoded string.
-    #self.assertRaises(ValueError,
-    #                  setattr, proto, 'optional_string', 'Тест')
     # No exception thrown.
     proto.optional_string = 'abc'
 
@@ -1405,13 +1404,13 @@ class ReflectionTest(unittest.TestCase):
     #
     # The pure Python API always returns objects of type 'unicode' (UTF-8
     # encoded), or 'str' (in 7 bit ASCII).
-    bytes = raw.item[0].message.replace(
+    bytes_loc = raw.item[0].message.replace(
         test_utf8_bytestr, len(test_utf8_bytestr) * b'\xff')
 
     unicode_decode_failed = False
     try:
-      message2.MergeFromString(bytes)
-    except UnicodeDecodeError, e:
+      message2.MergeFromString(bytes_loc)
+    except UnicodeDecodeError as e:
       unicode_decode_failed = True
     string_field = message2.str
     self.assertTrue(unicode_decode_failed or type(string_field) == str)
@@ -2122,7 +2121,7 @@ class SerializationTest(unittest.TestCase):
     """This method checks if the excpetion type and message are as expected."""
     try:
       callable_obj()
-    except exc_class, ex:
+    except exc_class as ex:
       # Check if the exception message is the right one.
       self.assertEqual(exception, str(ex))
       return

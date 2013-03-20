@@ -28,6 +28,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import unicode_literals
+
 """Provides type checking routines.
 
 This module defines type checking utilities in the forms of dictionaries:
@@ -64,9 +66,6 @@ def GetTypeChecker(cpp_type, field_type):
     An instance of TypeChecker which can be used to verify the types
     of values assigned to a field of the specified type.
   """
-  if (cpp_type == _FieldDescriptor.CPPTYPE_STRING and
-      field_type == _FieldDescriptor.TYPE_STRING):
-    return UnicodeValueChecker()
   return _VALUE_CHECKERS[cpp_type]
 
 
@@ -106,28 +105,6 @@ class IntValueChecker(object):
       raise ValueError('Value out of range: %d' % proposed_value)
 
 
-class UnicodeValueChecker(object):
-
-  """Checker used for string fields."""
-
-  def CheckValue(self, proposed_value):
-    if not isinstance(proposed_value, (str, unicode)):
-      message = ('%.1024r has type %s, but expected one of: %s' %
-                 (proposed_value, type(proposed_value), (str, unicode)))
-      raise TypeError(message)
-
-    # If the value is of type 'str' make sure that it is in 7-bit ASCII
-    # encoding.
-    if isinstance(proposed_value, str):
-      try:
-        unicode(proposed_value, 'ascii')
-      except UnicodeDecodeError:
-        raise ValueError('%.1024r has type str, but isn\'t in 7-bit ASCII '
-                         'encoding. Non-ASCII strings must be converted to '
-                         'unicode objects before being added.' %
-                         (proposed_value))
-
-
 class Int32ValueChecker(IntValueChecker):
   # We're sure to use ints instead of longs here since comparison may be more
   # efficient.
@@ -162,7 +139,7 @@ _VALUE_CHECKERS = {
         float, int, long),
     _FieldDescriptor.CPPTYPE_BOOL: TypeChecker(bool, int),
     _FieldDescriptor.CPPTYPE_ENUM: Int32ValueChecker(),
-    _FieldDescriptor.CPPTYPE_STRING: TypeChecker(str, unicode),
+    _FieldDescriptor.CPPTYPE_STRING: TypeChecker(unicode, bytes),
     }
 
 

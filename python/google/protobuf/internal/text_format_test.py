@@ -30,6 +30,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import unicode_literals
+
 """Test for google.protobuf.text_format."""
 
 __author__ = 'kenton@google.com (Kenton Varda)'
@@ -50,7 +52,6 @@ class TextFormatTest(unittest.TestCase):
     f = test_util.GoldenFile(golden_filename)
     golden_lines = f.readlines()
     f.close()
-    #golden_lines = [line for line in golden_lines]
     return golden_lines
 
   def CompareToGoldenFile(self, text, golden_filename):
@@ -103,8 +104,8 @@ class TextFormatTest(unittest.TestCase):
     message.repeated_double.append(123.456)
     message.repeated_double.append(1.23e22)
     message.repeated_double.append(1.23e-18)
-    message.repeated_string.append(u'\000\001\a\b\f\n\r\t\v\\\'"')
-    message.repeated_string.append(u'\u00fc\ua71f')
+    message.repeated_string.append('\000\001\a\b\f\n\r\t\v\\\'"')
+    message.repeated_string.append('\u00fc\ua71f')
     self.CompareToGoldenText(
       self.RemoveRedundantZeros(text_format.MessageToString(message)),
       b'repeated_int64: -9223372036854775808\n'
@@ -131,6 +132,7 @@ class TextFormatTest(unittest.TestCase):
     message.repeated_int32.append(3)
     message.repeated_string.append("Google")
     message.repeated_string.append("Zurich")
+
     self.CompareToGoldenText(
         text_format.MessageToString(message, as_one_line=True),
         b'repeated_int32: 1 repeated_int32: 1 repeated_int32: 3 '
@@ -167,8 +169,8 @@ class TextFormatTest(unittest.TestCase):
     message.repeated_double.append(123.456)
     message.repeated_double.append(1.23e22)
     message.repeated_double.append(1.23e-18)
-    message.repeated_string.append(u'\000\001\a\b\f\n\r\t\v\\\'"')
-    message.repeated_string.append(u'\u00fc\ua71f')
+    message.repeated_string.append('\000\001\a\b\f\n\r\t\v\\\'"')
+    message.repeated_string.append('\u00fc\ua71f')
     self.CompareToGoldenText(
       self.RemoveRedundantZeros(
           text_format.MessageToString(message, as_one_line=True)),
@@ -188,8 +190,8 @@ class TextFormatTest(unittest.TestCase):
     message.repeated_double.append(123.456)
     message.repeated_double.append(1.23e22)
     message.repeated_double.append(1.23e-18)
-    message.repeated_string.append(u'\000\001\a\b\f\n\r\t\v\\\'"')
-    message.repeated_string.append(u'\u00fc\ua71f')
+    message.repeated_string.append('\000\001\a\b\f\n\r\t\v\\\'"')
+    message.repeated_string.append('\u00fc\ua71f')
 
     # Test as_utf8 = False.
     wire_text = text_format.MessageToString(
@@ -207,7 +209,7 @@ class TextFormatTest(unittest.TestCase):
 
   def testPrintRawUtf8String(self):
     message = unittest_pb2.TestAllTypes()
-    message.repeated_string.append(u'\u00fc\ua71f')
+    message.repeated_string.append('\u00fc\ua71f')
     text = text_format.MessageToString(message, as_utf8 = True)
     self.CompareToGoldenText(text, b'repeated_string: "\303\274\352\234\237"\n')
     parsed_message = unittest_pb2.TestAllTypes()
@@ -217,7 +219,7 @@ class TextFormatTest(unittest.TestCase):
   def testMessageToString(self):
     message = unittest_pb2.ForeignMessage()
     message.c = 123
-    self.assertEqual(u'c: 123\n', str(message))
+    self.assertEqual('c: 123\n', str(message))
 
   def RemoveRedundantZeros(self, text):
     # Some platforms print 1e+5 as 1e+005.  This is fine, but we need to remove
@@ -288,7 +290,7 @@ class TextFormatTest(unittest.TestCase):
     ext1 = unittest_mset_pb2.TestMessageSetExtension1.message_set_extension
     ext2 = unittest_mset_pb2.TestMessageSetExtension2.message_set_extension
     self.assertEqual(23, message.message_set.Extensions[ext1].i)
-    self.assertEqual(u'foo', message.message_set.Extensions[ext2].str)
+    self.assertEqual('foo', message.message_set.Extensions[ext2].str)
 
   def testMergeExotic(self):
     message = unittest_pb2.TestAllTypes()
@@ -311,10 +313,10 @@ class TextFormatTest(unittest.TestCase):
     self.assertEqual(1.23e22, message.repeated_double[1])
     self.assertEqual(1.23e-18, message.repeated_double[2])
     self.assertEqual(
-        u'\000\001\a\b\f\n\r\t\v\\\'"', message.repeated_string[0])
-    self.assertEqual(u'foocorgegrault', message.repeated_string[1])
-    self.assertEqual(u'\u00fc\ua71f', message.repeated_string[2])
-    self.assertEqual(u'\u00fc', message.repeated_string[3])
+        '\000\001\a\b\f\n\r\t\v\\\'"', message.repeated_string[0])
+    self.assertEqual('foocorgegrault', message.repeated_string[1])
+    self.assertEqual('\u00fc\ua71f', message.repeated_string[2])
+    self.assertEqual('\u00fc', message.repeated_string[3])
 
   def testMergeEmptyText(self):
     message = unittest_pb2.TestAllTypes()
@@ -410,7 +412,7 @@ class TextFormatTest(unittest.TestCase):
 
     try:
       func(*args, **kwargs)
-    except e_class, expr:
+    except e_class as expr:
       if str(expr) != e:
         msg = '%s raised, but with wrong message: "%s" instead of "%s"'
         raise self.failureException(msg % (exc_name, expr, e))

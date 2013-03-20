@@ -52,7 +52,11 @@ this file*.
 
 __author__ = 'robinson@google.com (Will Robinson)'
 
-from StringIO import StringIO
+
+try:
+    from cStringIO import StringIO as SimIO
+except ImportError:
+    from io import BytesIO as SimIO
 import struct
 import weakref
 
@@ -736,7 +740,7 @@ def _AddSerializePartialToStringMethod(message_descriptor, cls):
   """Helper for _AddMessageMethods()."""
 
   def SerializePartialToString(self):
-    out = StringIO()
+    out = SimIO()
     self._InternalSerialize(out.write)
     return out.getvalue()
   cls.SerializePartialToString = SerializePartialToString
@@ -758,7 +762,7 @@ def _AddMergeFromStringMethod(message_descriptor, cls):
         raise message_mod.DecodeError('Unexpected end-group tag.')
     except IndexError:
       raise message_mod.DecodeError('Truncated message.')
-    except struct.error, e:
+    except struct.error as e:
       raise message_mod.DecodeError(e)
     return length   # Return this for legacy reasons.
   cls.MergeFromString = MergeFromString
