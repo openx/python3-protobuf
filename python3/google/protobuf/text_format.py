@@ -32,21 +32,35 @@
 
 __author__ = 'kenton@google.com (Kenton Varda)'
 
-import io
+try:
+    from StringIO import StringIO as SimIO
+except ImportError:
+    from io import BytesIO as SimIO
 import re
 
 from collections import deque
-import codecs
-string_escape = codecs.getdecoder('unicode_escape')
+import sys
+#TODO: See if there is a better way to do this
+if sys.version > '3':
+    import codecs
+    string_escape = codecs.getdecoder('unicode_escape')
+    def loc_string_escape(input):
+        return string_escape(input)[0]
+else:
+    def loc_string_escape(input):
+        return input.decode('string_escape')
+
 from google.protobuf.internal import type_checkers
-from google.protobuf.internal.utils import bytes_to_string, bytestr_to_string, \
-    string_to_bytestr, string_to_bytes, char_byte, byte_ord, bytestr
+from google.protobuf.internal.utils import bytes_to_string, \
+    bytestr_to_string, string_to_bytestr, string_to_bytes, \
+    char_byte, byte_ord, bytestr, single_byte
 from google.protobuf import descriptor
 
 __all__ = [ 'MessageToString', 'PrintMessage', 'PrintField',
             'PrintFieldValue', 'Merge' ]
 
 
+# These constants won't work on Windows pre-Python-2.6.
 _INFINITY = float('inf')
 _NAN = float('nan')
 
@@ -56,7 +70,7 @@ class ParseError(Exception):
 
 
 def MessageToString(message, as_utf8=False, as_one_line=False):
-  out = io.BytesIO()
+  out = SimIO()
   PrintMessage(message, out, as_utf8=as_utf8, as_one_line=as_one_line)
   result = out.getvalue()
   out.close()
@@ -551,9 +565,9 @@ class _Tokenizer(object):
     Raises:
       ParseError: If a string value couldn't be consumed.
     """
-    bytestr = self.ConsumeByteString()
+    bytes_str = self.ConsumeByteString()
     try:
-      return bytestr_to_string(bytestr)
+      return bytestr_to_string(bytes_str)
     except UnicodeDecodeError as e:
       raise self._StringParseError(e)
 
@@ -668,7 +682,7 @@ class _Tokenizer(object):
       token = match.group(0)
       self.token = token
     else:
-      self.token = bytes([self._current_line[self._column]])
+      self.token = single_byte(self._current_line[self._column])
 
 
 # text.encode('string_escape') does not seem to satisfy our needs as it
@@ -702,5 +716,5 @@ def _CUnescape(text):
   # This is required because the 'string_escape' encoding doesn't
   # allow single-digit hex escapes (like '\xf').
   result = _CUNESCAPE_HEX.sub(ReplaceHex, text)
-  return string_to_bytes(string_escape(result)[0])
+  return string_to_bytes(loc_string_escape(result))
 

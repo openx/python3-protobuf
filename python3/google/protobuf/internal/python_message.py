@@ -50,10 +50,11 @@ this file*.
 
 __author__ = 'robinson@google.com (Will Robinson)'
 
-#try:
-from io import BytesIO
-#except ImportError:
-#  from io import StringIO
+
+try:
+    from cStringIO import StringIO as SimIO
+except ImportError:
+    from io import BytesIO as SimIO
 import struct
 import weakref
 
@@ -737,7 +738,7 @@ def _AddSerializePartialToStringMethod(message_descriptor, cls):
   """Helper for _AddMessageMethods()."""
 
   def SerializePartialToString(self):
-    out = BytesIO()
+    out = SimIO()
     self._InternalSerialize(out.write)
     return out.getvalue()
   cls.SerializePartialToString = SerializePartialToString

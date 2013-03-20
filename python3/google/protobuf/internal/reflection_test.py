@@ -849,9 +849,11 @@ class ReflectionTest(unittest.TestCase):
         containing_type=None, nested_types=[], enum_types=[],
         fields=[foo_field_descriptor], extensions=[],
         options=descriptor_py3_pb2.MessageOptions())
-    MyProtoClass = reflection.GeneratedProtocolMessageType('MyProtoClass',
-                                                           (message.Message,),
-                                                           {'DESCRIPTOR': mydescriptor})
+    #The first input has to be a string, and literals are unicode
+    MyProtoClass \
+        = reflection.GeneratedProtocolMessageType(str('MyProtoClass'),
+                                                  (message.Message,),
+                                                  {'DESCRIPTOR': mydescriptor})
     myproto_instance = MyProtoClass()
     self.assertEqual(0, myproto_instance.foo_field)
     self.assertTrue(not myproto_instance.HasField('foo_field'))
