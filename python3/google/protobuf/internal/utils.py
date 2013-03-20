@@ -22,3 +22,13 @@ def string_to_bytestr(string):
     #return b''.join([chr(b) for b in string.encode('utf-8')])
     return string.encode('utf-8')
 
+def byte_ord(bytes):
+    return bytes
+
+def char_byte(char):
+    return ord(char)
+
+def bytestr(val):
+    """Pass in an integer val"""
+    return bytes([val])
+

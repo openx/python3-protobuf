@@ -83,8 +83,7 @@ __author__ = 'kenton@google.com (Kenton Varda)'
 import struct
 from google.protobuf.internal import encoder
 from google.protobuf.internal import wire_format
-from google.protobuf.internal.utils import string_to_bytes, bytestr_to_string, \
-    bytes_to_string
+from google.protobuf.internal.utils import bytestr_to_string, byte_ord
 from google.protobuf import message
 
 
@@ -110,12 +109,11 @@ def _VarintDecoder(mask):
   decoder returns a (value, new_pos) pair.
   """
 
-  #local_ord = ord
   def DecodeVarint(buffer, pos):
     result = 0
     shift = 0
     while 1:
-      b = buffer[pos]
+      b = byte_ord(buffer[pos])
       result |= ((b & 0x7f) << shift)
       pos += 1
       if not (b & 0x80):
@@ -130,12 +128,11 @@ def _VarintDecoder(mask):
 def _SignedVarintDecoder(mask):
   """Like _VarintDecoder() but decodes signed values."""
 
-  local_ord = bytes
   def DecodeVarint(buffer, pos):
     result = 0
     shift = 0
     while 1:
-      b = buffer[pos]
+      b = byte_ord(buffer[pos])
       result |= ((b & 0x7f) << shift)
       pos += 1
       if not (b & 0x80):
@@ -171,7 +168,7 @@ def ReadTag(buffer, pos):
   """
 
   start = pos
-  while buffer[pos] & 0x80:
+  while byte_ord(buffer[pos]) & 0x80:
     pos += 1
   pos += 1
   return (buffer[start:pos], pos)
@@ -273,8 +270,7 @@ def _StructPackDecoder(wire_type, format):
 
   def InnerDecode(buffer, pos):
     new_pos = pos + value_size
-    buffer_bytes = buffer[pos:new_pos]
-    result = local_unpack(format, buffer_bytes)[0]
+    result = local_unpack(format, buffer[pos:new_pos])[0]
     return (result, new_pos)
   return _SimpleDecoder(wire_type, InnerDecode)
 
@@ -628,7 +624,7 @@ def MessageSetItemDecoder(extensions_by_number):
 def _SkipVarint(buffer, pos, end):
   """Skip a varint value.  Returns the new position."""
 
-  while buffer[pos] & 0x80:
+  while byte_ord(buffer[pos]) & 0x80:
     pos += 1
   pos += 1
   if pos > end:
@@ -695,7 +691,6 @@ def _FieldSkipper():
       ]
 
   wiretype_mask = wire_format.TAG_TYPE_MASK
-  local_ord = ord
 
   def SkipField(buffer, pos, end, tag_bytes):
     """Skips a field with the specified tag.
@@ -708,7 +703,7 @@ def _FieldSkipper():
     """
 
     # The wire type is always in the first byte since varints are little-endian.
-    wire_type = tag_bytes[0] & wiretype_mask
+    wire_type = byte_ord(tag_bytes[0]) & wiretype_mask
     return WIRETYPE_TO_SKIPPER[wire_type](buffer, pos, end)
 
   return SkipField

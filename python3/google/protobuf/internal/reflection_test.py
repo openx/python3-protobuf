@@ -54,7 +54,7 @@ from google.protobuf.internal import more_messages_py3_pb2
 from google.protobuf.internal import wire_format
 from google.protobuf.internal import test_util
 from google.protobuf.internal import decoder
-from google.protobuf.internal.utils import string_to_bytes, string_to_bytestr
+from google.protobuf.internal.utils import string_to_bytestr
 
 
 class _MiniDecoder(object):
@@ -849,8 +849,9 @@ class ReflectionTest(unittest.TestCase):
         containing_type=None, nested_types=[], enum_types=[],
         fields=[foo_field_descriptor], extensions=[],
         options=descriptor_py3_pb2.MessageOptions())
-    class MyProtoClass(message.Message, metaclass=reflection.GeneratedProtocolMessageType):
-      DESCRIPTOR = mydescriptor
+    MyProtoClass = reflection.GeneratedProtocolMessageType('MyProtoClass',
+                                                           (message.Message,),
+                                                           {'DESCRIPTOR': mydescriptor})
     myproto_instance = MyProtoClass()
     self.assertEqual(0, myproto_instance.foo_field)
     self.assertTrue(not myproto_instance.HasField('foo_field'))
@@ -1354,14 +1355,6 @@ class ReflectionTest(unittest.TestCase):
       # encoded in UTF-8.
       self.assertEqual(type(proto.optional_string), str)
 
-    # These are no longer issues with Python 3
-    # # Try to assign a 'str' value which contains bytes that aren't 7-bit ASCII
-    # self.assertRaises(ValueError,
-    #                   setattr, proto, 'optional_string', str('a\x80a'))
-    # # Assign a 'str' object which contains a UTF-8 encoded string.
-    # self.assertRaises(ValueError,
-    #                   setattr, proto, 'optional_string', 'Тест')
-
     # No exception thrown.
     proto.optional_string = 'abc'
 
@@ -1371,7 +1364,7 @@ class ReflectionTest(unittest.TestCase):
     extension = extension_message.message_set_extension
 
     test_utf8 = 'Тест'
-    test_utf8_bytes_str = string_to_bytestr(test_utf8)
+    test_utf8_bytestr = string_to_bytestr(test_utf8)
 
     # 'Test' in another language, using UTF-8 charset.
     proto.Extensions[extension].str = test_utf8
@@ -1394,7 +1387,7 @@ class ReflectionTest(unittest.TestCase):
 
     # Check the actual bytes on the wire.
     self.assertTrue(
-        raw.item[0].message.endswith(test_utf8_bytes_str))
+        raw.item[0].message.endswith(test_utf8_bytestr))
     message2.MergeFromString(raw.item[0].message)
 
     self.assertEqual(type(message2.str), str)
@@ -1408,7 +1401,7 @@ class ReflectionTest(unittest.TestCase):
     # The pure Python API always returns objects of type 'unicode' (UTF-8
     # encoded), or 'str' (in 7 bit ASCII).
     bytes_loc = raw.item[0].message.replace(
-        test_utf8_bytes_str, len(test_utf8_bytes_str) * b'\xff')
+        test_utf8_bytestr, len(test_utf8_bytestr) * b'\xff')
 
     unicode_decode_failed = False
     try:
@@ -1910,7 +1903,6 @@ class SerializationTest(unittest.TestCase):
     first_proto = unittest_py3_pb2.TestAllTypes()
     second_proto = unittest_py3_pb2.TestAllTypes()
     test_util.SetAllFields(first_proto)
-    #test_util.SetAllFields(second_proto)
     serialized = first_proto.SerializeToString()
     self.assertEqual(first_proto.ByteSize(), len(serialized))
     second_proto.MergeFromString(serialized)

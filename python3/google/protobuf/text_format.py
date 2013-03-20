@@ -40,7 +40,7 @@ import codecs
 string_escape = codecs.getdecoder('unicode_escape')
 from google.protobuf.internal import type_checkers
 from google.protobuf.internal.utils import bytes_to_string, bytestr_to_string, \
-    string_to_bytestr, string_to_bytes
+    string_to_bytestr, string_to_bytes, char_byte, byte_ord, bytestr
 from google.protobuf import descriptor
 
 __all__ = [ 'MessageToString', 'PrintMessage', 'PrintField',
@@ -127,10 +127,8 @@ def PrintFieldValue(field, value, out, indent=0,
     out.write(b'\"')
     if type(value) is str:
       out.write(_CEscape(value.encode('utf-8'), as_utf8))
-      a = _CEscape(value.encode('utf-8'), as_utf8)
     else:
       out.write(_CEscape(value, as_utf8))
-      a = _CEscape(value, as_utf8)
     out.write(b'\"')
   elif field.cpp_type == descriptor.FieldDescriptor.CPPTYPE_BOOL:
     if value:
@@ -250,6 +248,7 @@ def _MergeScalarField(tokenizer, message, field):
   """
   tokenizer.Consume(b':')
   value = None
+
   if field.type in (descriptor.FieldDescriptor.TYPE_INT32,
                     descriptor.FieldDescriptor.TYPE_SINT32,
                     descriptor.FieldDescriptor.TYPE_SFIXED32):
@@ -416,7 +415,7 @@ class _Tokenizer(object):
     if not self.token:
       return False
     c = self.token[0]
-    return (c >= ord('0') and c <= ord('9')) or c == ord('-') or c == ord('+')
+    return (c >= char_byte('0') and c <= char_byte('9')) or c == char_byte('-') or c == char_byte('+')
 
   def ConsumeIdentifier(self):
     """Consumes protocol message field identifier.
@@ -554,8 +553,7 @@ class _Tokenizer(object):
     """
     bytestr = self.ConsumeByteString()
     try:
-      ret = bytestr.decode('utf-8')
-      return ret
+      return bytestr_to_string(bytestr)
     except UnicodeDecodeError as e:
       raise self._StringParseError(e)
 
@@ -569,7 +567,7 @@ class _Tokenizer(object):
       ParseError: If a byte array value couldn't be consumed.
     """
     list = [self._ConsumeSingleByteString()]
-    while len(self.token) > 0 and self.token[0] in (ord('\''), ord('"')):
+    while len(self.token) > 0 and self.token[0] in (char_byte('\''), char_byte('"')):
       list.append(self._ConsumeSingleByteString())
     return b"".join(list)
 
@@ -581,11 +579,12 @@ class _Tokenizer(object):
     method only consumes one token.
     """
     text = self.token
-    if len(text) < 1 or text[0] not in (ord('\''), ord('"')):
-      raise self._ParseError('Exptected string. %s-%s' % (len(text), text))
+    if len(text) < 1 or text[0] not in (char_byte('\''), char_byte('"')):
+      raise self._ParseError('Exptected string.')
 
     if len(text) < 2 or text[-1] != text[0]:
       raise self._ParseError('String missing ending quote.')
+
     try:
       result = _CUnescape(text[1:-1])
     except ValueError as e:
@@ -678,7 +677,8 @@ class _Tokenizer(object):
 # "\0011".encode('string_escape') ends up being "\\x011", which will be
 # decoded in C++ as a single-character string with char code 0x11.
 def _CEscape(byte_array, as_utf8):
-  def escape(b):
+  def escape(c):
+    b = byte_ord(c)
     if b == 10: return b"\\n"   # optional escape
     if b == 13: return b"\\r"   # optional escape
     if b ==  9: return b"\\t"   # optional escape
@@ -689,11 +689,8 @@ def _CEscape(byte_array, as_utf8):
 
     # necessary escapes
     if not as_utf8 and (b >= 127 or b < 32): return string_to_bytes("\\%03o" % b)
-    return bytes([b])
-  ret = b''
-  for c in byte_array:
-      ret += escape(int(c))
-  return ret #b"".join([escape(int(c)) for c in byte_array])
+    return bytestr(b)
+  return b"".join([escape(c) for c in byte_array])
 
 
 _CUNESCAPE_HEX = re.compile(b'\\\\x([0-9a-fA-F]{2}|[0-9a-fA-F])')
@@ -701,9 +698,9 @@ _CUNESCAPE_HEX = re.compile(b'\\\\x([0-9a-fA-F]{2}|[0-9a-fA-F])')
 
 def _CUnescape(text):
   def ReplaceHex(m):
-    return bytes([int(m.group(0)[2:], 16)])
+    return bytestr(int(m.group(0)[2:], 16))
   # This is required because the 'string_escape' encoding doesn't
   # allow single-digit hex escapes (like '\xf').
   result = _CUNESCAPE_HEX.sub(ReplaceHex, text)
-  ret = string_to_bytes(string_escape(result)[0])
-  return ret
+  return string_to_bytes(string_escape(result)[0])
+

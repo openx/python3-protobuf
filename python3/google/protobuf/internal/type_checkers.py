@@ -103,17 +103,6 @@ class IntValueChecker(object):
       raise ValueError('Value out of range: %d' % proposed_value)
 
 
-class UnicodeValueChecker(object):
-
-  """Checker used for string fields."""
-
-  def CheckValue(self, proposed_value):
-    if not isinstance(proposed_value, str):
-      message = ('%.1024r has type %s, but expected one of: %s' %
-                 (proposed_value, type(proposed_value), (str, str)))
-      raise TypeError(message)
-
-
 class Int32ValueChecker(IntValueChecker):
   # We're sure to use ints instead of longs here since comparison may be more
   # efficient.

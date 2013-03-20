@@ -68,7 +68,8 @@ __author__ = 'kenton@google.com (Kenton Varda)'
 
 import struct
 from google.protobuf.internal import wire_format
-from google.protobuf.internal.utils import bytes_to_string, string_to_bytestr
+from google.protobuf.internal.utils import string_to_bytestr,\
+    bytestr
 
 
 _POS_INF = float('inf')
@@ -339,15 +340,14 @@ def MessageSetItemSizer(field_number):
 def _VarintEncoder():
   """Return an encoder for a basic varint value (does not include tag)."""
 
-  local_chr = bytes
   def EncodeVarint(write, value):
     bits = value & 0x7f
     value >>= 7
     while value:
-      write(local_chr([0x80|bits]))
+      write(bytestr(0x80|bits))
       bits = value & 0x7f
       value >>= 7
-    return write(local_chr([bits]))
+    return write(bytestr(bits))
 
   return EncodeVarint
 
@@ -356,17 +356,16 @@ def _SignedVarintEncoder():
   """Return an encoder for a basic signed varint value (does not include
   tag)."""
 
-  local_chr = bytes
   def EncodeSignedVarint(write, value):
     if value < 0:
       value += (1 << 64)
     bits = value & 0x7f
     value >>= 7
     while value:
-      write(local_chr([0x80|bits]))
+      write(bytestr(0x80|bits))
       bits = value & 0x7f
       value >>= 7
-    return write(local_chr([bits]))
+    return write(bytestr(bits))
 
   return EncodeSignedVarint
 
@@ -524,21 +523,21 @@ def _FloatingPointEncoder(wire_type, format):
     def EncodeNonFiniteOrRaise(write, value):
       # Remember that the serialized form uses little-endian byte order.
       if value == _POS_INF:
-        write('\x00\x00\x80\x7F')
+        write(b'\x00\x00\x80\x7F')
       elif value == _NEG_INF:
-        write('\x00\x00\x80\xFF')
+        write(b'\x00\x00\x80\xFF')
       elif value != value:           # NaN
-        write('\x00\x00\xC0\x7F')
+        write(b'\x00\x00\xC0\x7F')
       else:
         raise
   elif value_size == 8:
     def EncodeNonFiniteOrRaise(write, value):
       if value == _POS_INF:
-        write('\x00\x00\x00\x00\x00\x00\xF0\x7F')
+        write(b'\x00\x00\x00\x00\x00\x00\xF0\x7F')
       elif value == _NEG_INF:
-        write('\x00\x00\x00\x00\x00\x00\xF0\xFF')
+        write(b'\x00\x00\x00\x00\x00\x00\xF0\xFF')
       elif value != value:                         # NaN
-        write('\x00\x00\x00\x00\x00\x00\xF8\x7F')
+        write(b'\x00\x00\x00\x00\x00\x00\xF8\x7F')
       else:
         raise
   else:
@@ -603,19 +602,19 @@ SInt32Encoder = SInt64Encoder = _ModifiedEncoder(
 # formats, they will also have the same size across all platforms (as opposed
 # to without the prefix, where their sizes depend on the C compiler's basic
 # type sizes).
-Fixed32Encoder  = _StructPackEncoder(wire_format.WIRETYPE_FIXED32, '<I')
-Fixed64Encoder  = _StructPackEncoder(wire_format.WIRETYPE_FIXED64, '<Q')
-SFixed32Encoder = _StructPackEncoder(wire_format.WIRETYPE_FIXED32, '<i')
-SFixed64Encoder = _StructPackEncoder(wire_format.WIRETYPE_FIXED64, '<q')
-FloatEncoder    = _FloatingPointEncoder(wire_format.WIRETYPE_FIXED32, '<f')
-DoubleEncoder   = _FloatingPointEncoder(wire_format.WIRETYPE_FIXED64, '<d')
+Fixed32Encoder  = _StructPackEncoder(wire_format.WIRETYPE_FIXED32, b'<I')
+Fixed64Encoder  = _StructPackEncoder(wire_format.WIRETYPE_FIXED64, b'<Q')
+SFixed32Encoder = _StructPackEncoder(wire_format.WIRETYPE_FIXED32, b'<i')
+SFixed64Encoder = _StructPackEncoder(wire_format.WIRETYPE_FIXED64, b'<q')
+FloatEncoder    = _FloatingPointEncoder(wire_format.WIRETYPE_FIXED32, b'<f')
+DoubleEncoder   = _FloatingPointEncoder(wire_format.WIRETYPE_FIXED64, b'<d')
 
 
 def BoolEncoder(field_number, is_repeated, is_packed):
   """Returns an encoder for a boolean field."""
 
-  false_byte = b'\x00'
-  true_byte = b'\x01'
+  false_byte = bytestr(0)
+  true_byte = bytestr(1)
   if is_packed:
     tag_bytes = TagBytes(field_number, wire_format.WIRETYPE_LENGTH_DELIMITED)
     local_EncodeVarint = _EncodeVarint
@@ -682,10 +681,6 @@ def BytesEncoder(field_number, is_repeated, is_packed):
   if is_repeated:
     def EncodeRepeatedField(write, value):
       for element in value:
-        if isinstance(element, str):
-          #TODO: Might want to figure out how to fit this into type checkers
-          #raise Exception('Byte types must pass in bytes() %s' % element)
-          element = element.encode('utf-8')
         write(tag)
         local_EncodeVarint(write, local_len(element))
         write(element)
@@ -693,10 +688,6 @@ def BytesEncoder(field_number, is_repeated, is_packed):
   else:
     def EncodeField(write, value):
       write(tag)
-      if isinstance(value, str):
-        #TODO: Might want to figure out how to fit this into type checkers
-        #raise Exception('Byte types must pass in bytes() %s' % value)
-        value = value.encode('utf-8')
       local_EncodeVarint(write, local_len(value))
       return write(value)
     return EncodeField

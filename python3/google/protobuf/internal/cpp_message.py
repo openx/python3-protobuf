@@ -38,6 +38,7 @@ import operator
 from google.protobuf.internal import _net_proto2___python
 from google.protobuf.internal.utils import cmp
 from google.protobuf import message
+from google.internal.utils import bytestr_to_string
 import collections
 
 
@@ -583,8 +584,7 @@ def _AddMessageMethods(message_descriptor, cls):
     raise TypeError('unhashable object')
 
   def __unicode__(self):
-    return self.__str__()
-    #return text_format.MessageToString(self, as_utf8=True).decode('utf-8')
+    return bytestr_to_string(text_format.MessageToString(self, as_utf8=True))
 
   # Attach the local methods to the message class.
   for key, value in locals().copy().items():
