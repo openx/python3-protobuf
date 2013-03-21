@@ -53,10 +53,6 @@ this file*.
 __author__ = 'robinson@google.com (Will Robinson)'
 
 
-try:
-    from cStringIO import StringIO as SimIO
-except ImportError:
-    from io import BytesIO as SimIO
 import struct
 import weakref
 
@@ -67,7 +63,7 @@ from google.protobuf.internal import encoder
 from google.protobuf.internal import message_listener as message_listener_mod
 from google.protobuf.internal import type_checkers
 from google.protobuf.internal import wire_format
-from google.protobuf.internal.utils import bytestr_to_string
+from google.protobuf.internal.utils import SimIO, bytestr_to_string
 from google.protobuf import descriptor as descriptor_mod
 from google.protobuf import message as message_mod
 from google.protobuf import text_format
