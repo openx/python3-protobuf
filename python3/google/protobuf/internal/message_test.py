@@ -46,8 +46,8 @@ __author__ = 'gps@google.com (Gregory P. Smith)'
 import copy
 import math
 import unittest
-from google.protobuf import unittest_import_py3_pb2
-from google.protobuf import unittest_py3_pb2
+from google.protobuf import unittest_import_pb2
+from google.protobuf import unittest_pb2
 from google.protobuf.internal import test_util
 from google.protobuf.internal.utils import cmp
 
@@ -71,7 +71,7 @@ class MessageTest(unittest.TestCase):
 
   def testGoldenMessage(self):
     golden_data = test_util.GoldenFile('golden_message').read()
-    golden_message = unittest_py3_pb2.TestAllTypes()
+    golden_message = unittest_pb2.TestAllTypes()
     golden_message.ParseFromString(golden_data)
     test_util.ExpectAllFieldsSet(self, golden_message)
     self.assertTrue(golden_message.SerializeToString() == golden_data)
@@ -80,9 +80,9 @@ class MessageTest(unittest.TestCase):
 
   def testGoldenExtensions(self):
     golden_data = test_util.GoldenFile('golden_message').read()
-    golden_message = unittest_py3_pb2.TestAllExtensions()
+    golden_message = unittest_pb2.TestAllExtensions()
     golden_message.ParseFromString(golden_data)
-    all_set = unittest_py3_pb2.TestAllExtensions()
+    all_set = unittest_pb2.TestAllExtensions()
     test_util.SetAllExtensions(all_set)
     self.assertEqual(all_set, golden_message)
     self.assertTrue(golden_message.SerializeToString() == golden_data)
@@ -91,9 +91,9 @@ class MessageTest(unittest.TestCase):
 
   def testGoldenPackedMessage(self):
     golden_data = test_util.GoldenFile('golden_packed_fields_message').read()
-    golden_message = unittest_py3_pb2.TestPackedTypes()
+    golden_message = unittest_pb2.TestPackedTypes()
     golden_message.ParseFromString(golden_data)
-    all_set = unittest_py3_pb2.TestPackedTypes()
+    all_set = unittest_pb2.TestPackedTypes()
     test_util.SetAllPackedFields(all_set)
     self.assertEqual(all_set, golden_message)
     self.assertTrue(all_set.SerializeToString() == golden_data)
@@ -102,9 +102,9 @@ class MessageTest(unittest.TestCase):
 
   def testGoldenPackedExtensions(self):
     golden_data = test_util.GoldenFile('golden_packed_fields_message').read()
-    golden_message = unittest_py3_pb2.TestPackedExtensions()
+    golden_message = unittest_pb2.TestPackedExtensions()
     golden_message.ParseFromString(golden_data)
-    all_set = unittest_py3_pb2.TestPackedExtensions()
+    all_set = unittest_pb2.TestPackedExtensions()
     test_util.SetAllPackedExtensions(all_set)
     self.assertEqual(all_set, golden_message)
     self.assertTrue(all_set.SerializeToString() == golden_data)
@@ -116,7 +116,7 @@ class MessageTest(unittest.TestCase):
                    '\x61\x00\x00\x00\x00\x00\x00\xF0\x7F'
                    '\xCD\x02\x00\x00\x80\x7F'
                    '\xD1\x02\x00\x00\x00\x00\x00\x00\xF0\x7F')
-    golden_message = unittest_py3_pb2.TestAllTypes()
+    golden_message = unittest_pb2.TestAllTypes()
     golden_message.ParseFromString(golden_data)
     self.assertTrue(IsPosInf(golden_message.optional_float))
     self.assertTrue(IsPosInf(golden_message.optional_double))
@@ -129,7 +129,7 @@ class MessageTest(unittest.TestCase):
                    '\x61\x00\x00\x00\x00\x00\x00\xF0\xFF'
                    '\xCD\x02\x00\x00\x80\xFF'
                    '\xD1\x02\x00\x00\x00\x00\x00\x00\xF0\xFF')
-    golden_message = unittest_py3_pb2.TestAllTypes()
+    golden_message = unittest_pb2.TestAllTypes()
     golden_message.ParseFromString(golden_data)
     self.assertTrue(IsNegInf(golden_message.optional_float))
     self.assertTrue(IsNegInf(golden_message.optional_double))
@@ -142,7 +142,7 @@ class MessageTest(unittest.TestCase):
                    '\x61\x00\x00\x00\x00\x00\x00\xF8\x7F'
                    '\xCD\x02\x00\x00\xC0\x7F'
                    '\xD1\x02\x00\x00\x00\x00\x00\x00\xF8\x7F')
-    golden_message = unittest_py3_pb2.TestAllTypes()
+    golden_message = unittest_pb2.TestAllTypes()
     golden_message.ParseFromString(golden_data)
     self.assertTrue(isnan(golden_message.optional_float))
     self.assertTrue(isnan(golden_message.optional_double))
@@ -153,7 +153,7 @@ class MessageTest(unittest.TestCase):
   def testPositiveInfinityPacked(self):
     golden_data = ('\xA2\x06\x04\x00\x00\x80\x7F'
                    '\xAA\x06\x08\x00\x00\x00\x00\x00\x00\xF0\x7F')
-    golden_message = unittest_py3_pb2.TestPackedTypes()
+    golden_message = unittest_pb2.TestPackedTypes()
     golden_message.ParseFromString(golden_data)
     self.assertTrue(IsPosInf(golden_message.packed_float[0]))
     self.assertTrue(IsPosInf(golden_message.packed_double[0]))
@@ -162,7 +162,7 @@ class MessageTest(unittest.TestCase):
   def testNegativeInfinityPacked(self):
     golden_data = ('\xA2\x06\x04\x00\x00\x80\xFF'
                    '\xAA\x06\x08\x00\x00\x00\x00\x00\x00\xF0\xFF')
-    golden_message = unittest_py3_pb2.TestPackedTypes()
+    golden_message = unittest_pb2.TestPackedTypes()
     golden_message.ParseFromString(golden_data)
     self.assertTrue(IsNegInf(golden_message.packed_float[0]))
     self.assertTrue(IsNegInf(golden_message.packed_double[0]))
@@ -171,14 +171,14 @@ class MessageTest(unittest.TestCase):
   def testNotANumberPacked(self):
     golden_data = ('\xA2\x06\x04\x00\x00\xC0\x7F'
                    '\xAA\x06\x08\x00\x00\x00\x00\x00\x00\xF8\x7F')
-    golden_message = unittest_py3_pb2.TestPackedTypes()
+    golden_message = unittest_pb2.TestPackedTypes()
     golden_message.ParseFromString(golden_data)
     self.assertTrue(isnan(golden_message.packed_float[0]))
     self.assertTrue(isnan(golden_message.packed_double[0]))
     self.assertTrue(golden_message.SerializeToString() == golden_data)
 
   def testExtremeFloatValues(self):
-    message = unittest_py3_pb2.TestAllTypes()
+    message = unittest_pb2.TestAllTypes()
 
     # Most positive exponent, no significand bits set.
     kMostPosExponentNoSigBits = math.pow(2, 127)
@@ -223,7 +223,7 @@ class MessageTest(unittest.TestCase):
     self.assertTrue(message.optional_float == -kMostNegExponentOneSigBit)
 
   def testExtremeFloatValues(self):
-    message = unittest_py3_pb2.TestAllTypes()
+    message = unittest_pb2.TestAllTypes()
 
     # Most positive exponent, no significand bits set.
     kMostPosExponentNoSigBits = math.pow(2, 1023)
@@ -269,7 +269,7 @@ class MessageTest(unittest.TestCase):
 
   def testSortingRepeatedScalarFieldsDefaultComparator(self):
     """Check some different types with the default comparator."""
-    message = unittest_py3_pb2.TestAllTypes()
+    message = unittest_pb2.TestAllTypes()
 
     # TODO(mattp): would testing more scalar types strengthen test?
     message.repeated_int32.append(1)
@@ -306,7 +306,7 @@ class MessageTest(unittest.TestCase):
 
   def testSortingRepeatedScalarFieldsCustomComparator(self):
     """Check some different types with custom comparator."""
-    message = unittest_py3_pb2.TestAllTypes()
+    message = unittest_pb2.TestAllTypes()
 
     message.repeated_int32.append(-3)
     message.repeated_int32.append(-2)
@@ -326,7 +326,7 @@ class MessageTest(unittest.TestCase):
 
   def testSortingRepeatedCompositeFieldsCustomComparator(self):
     """Check passing a custom comparator to sort a repeated composite field."""
-    message = unittest_py3_pb2.TestAllTypes()
+    message = unittest_pb2.TestAllTypes()
 
     message.repeated_nested_message.add().bb = 1
     message.repeated_nested_message.add().bb = 3

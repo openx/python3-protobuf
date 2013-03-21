@@ -42,11 +42,11 @@ further ensures that we can use Python protocol message objects as we expect.
 __author__ = 'robinson@google.com (Will Robinson)'
 
 import unittest
-from google.protobuf import unittest_custom_options_py3_pb2
-from google.protobuf import unittest_import_py3_pb2
-from google.protobuf import unittest_mset_py3_pb2
-from google.protobuf import unittest_py3_pb2
-from google.protobuf import unittest_no_generic_services_py3_pb2
+from google.protobuf import unittest_custom_options_pb2
+from google.protobuf import unittest_import_pb2
+from google.protobuf import unittest_mset_pb2
+from google.protobuf import unittest_pb2
+from google.protobuf import unittest_no_generic_services_pb2
 from google.protobuf import service
 
 MAX_EXTENSION = 536870912
@@ -56,7 +56,7 @@ class GeneratorTest(unittest.TestCase):
 
   def testNestedMessageDescriptor(self):
     field_name = 'optional_nested_message'
-    proto_type = unittest_py3_pb2.TestAllTypes
+    proto_type = unittest_pb2.TestAllTypes
     self.assertEqual(
         proto_type.NestedMessage.DESCRIPTOR,
         proto_type.DESCRIPTOR.fields_by_name[field_name].message_type)
@@ -65,20 +65,20 @@ class GeneratorTest(unittest.TestCase):
     # We test only module-level enums here.
     # TODO(robinson): Examine descriptors directly to check
     # enum descriptor output.
-    self.assertEqual(4, unittest_py3_pb2.FOREIGN_FOO)
-    self.assertEqual(5, unittest_py3_pb2.FOREIGN_BAR)
-    self.assertEqual(6, unittest_py3_pb2.FOREIGN_BAZ)
+    self.assertEqual(4, unittest_pb2.FOREIGN_FOO)
+    self.assertEqual(5, unittest_pb2.FOREIGN_BAR)
+    self.assertEqual(6, unittest_pb2.FOREIGN_BAZ)
 
-    proto = unittest_py3_pb2.TestAllTypes()
+    proto = unittest_pb2.TestAllTypes()
     self.assertEqual(1, proto.FOO)
-    self.assertEqual(1, unittest_py3_pb2.TestAllTypes.FOO)
+    self.assertEqual(1, unittest_pb2.TestAllTypes.FOO)
     self.assertEqual(2, proto.BAR)
-    self.assertEqual(2, unittest_py3_pb2.TestAllTypes.BAR)
+    self.assertEqual(2, unittest_pb2.TestAllTypes.BAR)
     self.assertEqual(3, proto.BAZ)
-    self.assertEqual(3, unittest_py3_pb2.TestAllTypes.BAZ)
+    self.assertEqual(3, unittest_pb2.TestAllTypes.BAZ)
 
   def testExtremeDefaultValues(self):
-    message = unittest_py3_pb2.TestExtremeDefaultValues()
+    message = unittest_pb2.TestExtremeDefaultValues()
 
     # Python pre-2.6 does not have isinf() or isnan() functions, so we have
     # to provide our own.
@@ -103,7 +103,7 @@ class GeneratorTest(unittest.TestCase):
     self.assertEqual("? ? ?? ?? ??? ??/ ??-", message.cpp_trigraph)
 
   def testHasDefaultValues(self):
-    desc = unittest_py3_pb2.TestAllTypes.DESCRIPTOR
+    desc = unittest_pb2.TestAllTypes.DESCRIPTOR
 
     expected_has_default_by_name = {
         'optional_int32': False,
@@ -119,31 +119,31 @@ class GeneratorTest(unittest.TestCase):
     self.assertEqual(expected_has_default_by_name, has_default_by_name)
 
   def testContainingTypeBehaviorForExtensions(self):
-    self.assertEqual(unittest_py3_pb2.optional_int32_extension.containing_type,
-                     unittest_py3_pb2.TestAllExtensions.DESCRIPTOR)
-    self.assertEqual(unittest_py3_pb2.TestRequired.single.containing_type,
-                     unittest_py3_pb2.TestAllExtensions.DESCRIPTOR)
+    self.assertEqual(unittest_pb2.optional_int32_extension.containing_type,
+                     unittest_pb2.TestAllExtensions.DESCRIPTOR)
+    self.assertEqual(unittest_pb2.TestRequired.single.containing_type,
+                     unittest_pb2.TestAllExtensions.DESCRIPTOR)
 
   def testExtensionScope(self):
-    self.assertEqual(unittest_py3_pb2.optional_int32_extension.extension_scope,
+    self.assertEqual(unittest_pb2.optional_int32_extension.extension_scope,
                      None)
-    self.assertEqual(unittest_py3_pb2.TestRequired.single.extension_scope,
-                     unittest_py3_pb2.TestRequired.DESCRIPTOR)
+    self.assertEqual(unittest_pb2.TestRequired.single.extension_scope,
+                     unittest_pb2.TestRequired.DESCRIPTOR)
 
   def testIsExtension(self):
-    self.assertTrue(unittest_py3_pb2.optional_int32_extension.is_extension)
-    self.assertTrue(unittest_py3_pb2.TestRequired.single.is_extension)
+    self.assertTrue(unittest_pb2.optional_int32_extension.is_extension)
+    self.assertTrue(unittest_pb2.TestRequired.single.is_extension)
 
-    message_descriptor = unittest_py3_pb2.TestRequired.DESCRIPTOR
+    message_descriptor = unittest_pb2.TestRequired.DESCRIPTOR
     non_extension_descriptor = message_descriptor.fields_by_name['a']
     self.assertTrue(not non_extension_descriptor.is_extension)
 
   def testOptions(self):
-    proto = unittest_mset_py3_pb2.TestMessageSet()
+    proto = unittest_mset_pb2.TestMessageSet()
     self.assertTrue(proto.DESCRIPTOR.GetOptions().message_set_wire_format)
 
   def testMessageWithCustomOptions(self):
-    proto = unittest_custom_options_py3_pb2.TestMessageWithCustomOptions()
+    proto = unittest_custom_options_pb2.TestMessageWithCustomOptions()
     enum_options = proto.DESCRIPTOR.enum_types_by_name['AnEnum'].GetOptions()
     self.assertTrue(enum_options is not None)
     # TODO(gps): We really should test for the presense of the enum_opt1
@@ -151,92 +151,92 @@ class GeneratorTest(unittest.TestCase):
 
   def testNestedTypes(self):
     self.assertEqual(
-        set(unittest_py3_pb2.TestAllTypes.DESCRIPTOR.nested_types),
+        set(unittest_pb2.TestAllTypes.DESCRIPTOR.nested_types),
         set([
-            unittest_py3_pb2.TestAllTypes.NestedMessage.DESCRIPTOR,
-            unittest_py3_pb2.TestAllTypes.OptionalGroup.DESCRIPTOR,
-            unittest_py3_pb2.TestAllTypes.RepeatedGroup.DESCRIPTOR,
+            unittest_pb2.TestAllTypes.NestedMessage.DESCRIPTOR,
+            unittest_pb2.TestAllTypes.OptionalGroup.DESCRIPTOR,
+            unittest_pb2.TestAllTypes.RepeatedGroup.DESCRIPTOR,
         ]))
-    self.assertEqual(unittest_py3_pb2.TestEmptyMessage.DESCRIPTOR.nested_types, [])
+    self.assertEqual(unittest_pb2.TestEmptyMessage.DESCRIPTOR.nested_types, [])
     self.assertEqual(
-        unittest_py3_pb2.TestAllTypes.NestedMessage.DESCRIPTOR.nested_types, [])
+        unittest_pb2.TestAllTypes.NestedMessage.DESCRIPTOR.nested_types, [])
 
   def testContainingType(self):
     self.assertTrue(
-        unittest_py3_pb2.TestEmptyMessage.DESCRIPTOR.containing_type is None)
+        unittest_pb2.TestEmptyMessage.DESCRIPTOR.containing_type is None)
     self.assertTrue(
-        unittest_py3_pb2.TestAllTypes.DESCRIPTOR.containing_type is None)
+        unittest_pb2.TestAllTypes.DESCRIPTOR.containing_type is None)
     self.assertEqual(
-        unittest_py3_pb2.TestAllTypes.NestedMessage.DESCRIPTOR.containing_type,
-        unittest_py3_pb2.TestAllTypes.DESCRIPTOR)
+        unittest_pb2.TestAllTypes.NestedMessage.DESCRIPTOR.containing_type,
+        unittest_pb2.TestAllTypes.DESCRIPTOR)
     self.assertEqual(
-        unittest_py3_pb2.TestAllTypes.NestedMessage.DESCRIPTOR.containing_type,
-        unittest_py3_pb2.TestAllTypes.DESCRIPTOR)
+        unittest_pb2.TestAllTypes.NestedMessage.DESCRIPTOR.containing_type,
+        unittest_pb2.TestAllTypes.DESCRIPTOR)
     self.assertEqual(
-        unittest_py3_pb2.TestAllTypes.RepeatedGroup.DESCRIPTOR.containing_type,
-        unittest_py3_pb2.TestAllTypes.DESCRIPTOR)
+        unittest_pb2.TestAllTypes.RepeatedGroup.DESCRIPTOR.containing_type,
+        unittest_pb2.TestAllTypes.DESCRIPTOR)
 
   def testContainingTypeInEnumDescriptor(self):
-    self.assertTrue(unittest_py3_pb2._FOREIGNENUM.containing_type is None)
-    self.assertEqual(unittest_py3_pb2._TESTALLTYPES_NESTEDENUM.containing_type,
-                     unittest_py3_pb2.TestAllTypes.DESCRIPTOR)
+    self.assertTrue(unittest_pb2._FOREIGNENUM.containing_type is None)
+    self.assertEqual(unittest_pb2._TESTALLTYPES_NESTEDENUM.containing_type,
+                     unittest_pb2.TestAllTypes.DESCRIPTOR)
 
   def testPackage(self):
     self.assertEqual(
-        unittest_py3_pb2.TestAllTypes.DESCRIPTOR.file.package,
+        unittest_pb2.TestAllTypes.DESCRIPTOR.file.package,
         'protobuf_unittest')
-    desc = unittest_py3_pb2.TestAllTypes.NestedMessage.DESCRIPTOR
+    desc = unittest_pb2.TestAllTypes.NestedMessage.DESCRIPTOR
     self.assertEqual(desc.file.package, 'protobuf_unittest')
     self.assertEqual(
-        unittest_import_py3_pb2.ImportMessage.DESCRIPTOR.file.package,
+        unittest_import_pb2.ImportMessage.DESCRIPTOR.file.package,
         'protobuf_unittest_import')
 
     self.assertEqual(
-        unittest_py3_pb2._FOREIGNENUM.file.package, 'protobuf_unittest')
+        unittest_pb2._FOREIGNENUM.file.package, 'protobuf_unittest')
     self.assertEqual(
-        unittest_py3_pb2._TESTALLTYPES_NESTEDENUM.file.package,
+        unittest_pb2._TESTALLTYPES_NESTEDENUM.file.package,
         'protobuf_unittest')
     self.assertEqual(
-        unittest_import_py3_pb2._IMPORTENUM.file.package,
+        unittest_import_pb2._IMPORTENUM.file.package,
         'protobuf_unittest_import')
 
   def testExtensionRange(self):
     self.assertEqual(
-        unittest_py3_pb2.TestAllTypes.DESCRIPTOR.extension_ranges, [])
+        unittest_pb2.TestAllTypes.DESCRIPTOR.extension_ranges, [])
     self.assertEqual(
-        unittest_py3_pb2.TestAllExtensions.DESCRIPTOR.extension_ranges,
+        unittest_pb2.TestAllExtensions.DESCRIPTOR.extension_ranges,
         [(1, MAX_EXTENSION)])
     self.assertEqual(
-        unittest_py3_pb2.TestMultipleExtensionRanges.DESCRIPTOR.extension_ranges,
+        unittest_pb2.TestMultipleExtensionRanges.DESCRIPTOR.extension_ranges,
         [(42, 43), (4143, 4244), (65536, MAX_EXTENSION)])
 
   def testFileDescriptor(self):
-    self.assertEqual(unittest_py3_pb2.DESCRIPTOR.name,
+    self.assertEqual(unittest_pb2.DESCRIPTOR.name,
                      'google/protobuf/unittest.proto')
-    self.assertEqual(unittest_py3_pb2.DESCRIPTOR.package, 'protobuf_unittest')
-    self.assertFalse(unittest_py3_pb2.DESCRIPTOR.serialized_pb is None)
+    self.assertEqual(unittest_pb2.DESCRIPTOR.package, 'protobuf_unittest')
+    self.assertFalse(unittest_pb2.DESCRIPTOR.serialized_pb is None)
 
   def testNoGenericServices(self):
-    self.assertTrue(hasattr(unittest_no_generic_services_py3_pb2, "TestMessage"))
-    self.assertTrue(hasattr(unittest_no_generic_services_py3_pb2, "FOO"))
-    self.assertTrue(hasattr(unittest_no_generic_services_py3_pb2, "test_extension"))
+    self.assertTrue(hasattr(unittest_no_generic_services_pb2, "TestMessage"))
+    self.assertTrue(hasattr(unittest_no_generic_services_pb2, "FOO"))
+    self.assertTrue(hasattr(unittest_no_generic_services_pb2, "test_extension"))
 
-    # Make sure unittest_no_generic_services_py3_pb2 has no services subclassing
+    # Make sure unittest_no_generic_services_pb2 has no services subclassing
     # Proto2 Service class.
-    if hasattr(unittest_no_generic_services_py3_pb2, "TestService"):
-      self.assertFalse(issubclass(unittest_no_generic_services_py3_pb2.TestService,
+    if hasattr(unittest_no_generic_services_pb2, "TestService"):
+      self.assertFalse(issubclass(unittest_no_generic_services_pb2.TestService,
                                   service.Service))
 
   def testMessageTypesByName(self):
-    file_type = unittest_py3_pb2.DESCRIPTOR
+    file_type = unittest_pb2.DESCRIPTOR
     self.assertEqual(
-        unittest_py3_pb2._TESTALLTYPES,
-        file_type.message_types_by_name[unittest_py3_pb2._TESTALLTYPES.name])
+        unittest_pb2._TESTALLTYPES,
+        file_type.message_types_by_name[unittest_pb2._TESTALLTYPES.name])
 
     # Nested messages shouldn't be included in the message_types_by_name
     # dictionary (like in the C++ API).
     self.assertFalse(
-        unittest_py3_pb2._TESTALLTYPES_NESTEDMESSAGE.name in
+        unittest_pb2._TESTALLTYPES_NESTEDMESSAGE.name in
         file_type.message_types_by_name)
 
 

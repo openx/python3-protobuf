@@ -28,11 +28,11 @@ else:
   protoc = find_executable("protoc")
 
 def generate_proto(source):
-  """Invokes the Protocol Compiler to generate a _py3_pb2.py from the given
+  """Invokes the Protocol Compiler to generate a _pb2.py from the given
   .proto file.  Does nothing if the output already exists and is newer than
   the input."""
 
-  output = source.replace(".proto", "_py3_pb2.py").replace("../src/", "")
+  output = source.replace(".proto", "_pb2.py").replace("../src/", "")
 
   if not os.path.exists(source):
     print("Can't find required file: " + source)
@@ -91,11 +91,11 @@ def MakeTestSuite():
 if __name__ == '__main__':
   # TODO(kenton):  Integrate this into setuptools somehow?
   if len(sys.argv) >= 2 and sys.argv[1] == "clean":
-    # Delete generated _py3_pb2.py files and .pyc files in the code tree.
+    # Delete generated _pb2.py files and .pyc files in the code tree.
     for (dirpath, dirnames, filenames) in os.walk("."):
       for filename in filenames:
         filepath = os.path.join(dirpath, filename)
-        if filepath.endswith("_py3_pb2.py") or filepath.endswith(".pyc") or \
+        if filepath.endswith("_pb2.py") or filepath.endswith(".pyc") or \
           filepath.endswith(".so") or filepath.endswith(".o"):
           os.remove(filepath)
   else:
@@ -135,8 +135,8 @@ if __name__ == '__main__':
           'google.protobuf.internal.utils',
           'google.protobuf.internal.wire_format',
           'google.protobuf.descriptor',
-          'google.protobuf.descriptor_py3_pb2',
-          'google.protobuf.compiler.plugin_py3_pb2',
+          'google.protobuf.descriptor_pb2',
+          'google.protobuf.compiler.plugin_pb2',
           'google.protobuf.message',
           'google.protobuf.reflection',
           'google.protobuf.service',

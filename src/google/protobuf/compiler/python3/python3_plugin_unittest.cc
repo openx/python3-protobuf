@@ -58,10 +58,10 @@ class TestGenerator : public CodeGenerator {
                         const string& parameter,
                         GeneratorContext* context,
                         string* error) const {
-    TryInsert("test_py3_pb2.py", "imports", context);
-    TryInsert("test_py3_pb2.py", "module_scope", context);
-    TryInsert("test_py3_pb2.py", "class_scope:foo.Bar", context);
-    TryInsert("test_py3_pb2.py", "class_scope:foo.Bar.Baz", context);
+    TryInsert("test_pb2.py", "imports", context);
+    TryInsert("test_pb2.py", "module_scope", context);
+    TryInsert("test_pb2.py", "class_scope:foo.Bar", context);
+    TryInsert("test_pb2.py", "class_scope:foo.Bar.Baz", context);
     return true;
   }
 
