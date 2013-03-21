@@ -168,15 +168,11 @@ string StringifyDefaultValue(const FieldDescriptor& field) {
     case FieldDescriptor::CPPTYPE_DOUBLE: {
       double value = field.default_value_double();
       if (value == numeric_limits<double>::infinity()) {
-        // Python pre-2.6 on Windows does not parse "inf" correctly.  However,
-        // a numeric literal that is too big for a double will become infinity.
-        return "1e10000";
+        return "float(\"inf\")";
       } else if (value == -numeric_limits<double>::infinity()) {
-        // See above.
-        return "-1e10000";
+        return "float(\"-inf\")";
       } else if (value != value) {
-        // infinity * 0 = nan
-        return "(1e10000 * 0)";
+        return "float(\"nan\")";
       } else {
         return SimpleDtoa(value);
       }
@@ -184,15 +180,11 @@ string StringifyDefaultValue(const FieldDescriptor& field) {
     case FieldDescriptor::CPPTYPE_FLOAT: {
       float value = field.default_value_float();
       if (value == numeric_limits<float>::infinity()) {
-        // Python pre-2.6 on Windows does not parse "inf" correctly.  However,
-        // a numeric literal that is too big for a double will become infinity.
-        return "1e10000";
+        return "float(\"inf\")";
       } else if (value == -numeric_limits<float>::infinity()) {
-        // See above.
-        return "-1e10000";
+        return "float(\"-inf\")";
       } else if (value != value) {
-        // infinity - infinity = nan
-        return "(1e10000 * 0)";
+        return "float(\"nan\")";
       } else {
         return SimpleFtoa(value);
       }
@@ -203,8 +195,8 @@ string StringifyDefaultValue(const FieldDescriptor& field) {
       return SimpleItoa(field.default_value_enum()->number());
     case FieldDescriptor::CPPTYPE_STRING:
       if (field.type() == FieldDescriptor::TYPE_STRING) {
-        return "unicode(b\"" + CEscape(field.default_value_string()) +
-            "\", \"utf-8\")";
+        return "b\"" + CEscape(field.default_value_string()) +
+            "\".decode(\"utf-8\")";
       } else {
         return "b\"" + CEscape(field.default_value_string()) + "\"";
       }
