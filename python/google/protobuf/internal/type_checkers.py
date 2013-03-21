@@ -50,6 +50,7 @@ __author__ = 'robinson@google.com (Will Robinson)'
 from google.protobuf.internal import decoder
 from google.protobuf.internal import encoder
 from google.protobuf.internal import wire_format
+from google.protobuf.internal.utils import unicode, long
 from google.protobuf import descriptor
 
 _FieldDescriptor = descriptor.FieldDescriptor

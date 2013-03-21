@@ -51,7 +51,7 @@ else:
 from google.protobuf.internal import type_checkers
 from google.protobuf.internal.utils import bytes_to_string, \
     bytestr_to_string, string_to_bytestr, string_to_bytes, \
-    byte_chr, SimIO
+    byte_chr, SimIO, unicode
 from google.protobuf import descriptor
 
 __all__ = [ 'MessageToString', 'PrintMessage', 'PrintField',

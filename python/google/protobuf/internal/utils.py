@@ -31,7 +31,16 @@ def string_to_bytestr(string):
     """
     return string.encode('utf-8')
 
-if sys.version > '3':
+if sys.version_info >= (3,):
+    #some constants that are python2 only
+    unicode = str
+    long = int
+    range = range
+    unichr = chr
+
+    def iteritems(d):
+        return d.items()
+
     from io import BytesIO as SimIO
 
     def string_to_bytes(text):
@@ -81,6 +90,15 @@ if sys.version > '3':
         """
         return bytes([val])
 else:
+    #some constants that are python2 only
+    range = xrange
+    unicode = unicode
+    long = long
+    unichr = unichr
+
+    def iteritems(d):
+        return d.iteritems()
+
     try:
         from cStringIO import StringIO as SimIO
     except:

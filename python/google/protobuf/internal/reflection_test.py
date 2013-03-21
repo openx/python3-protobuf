@@ -56,7 +56,8 @@ from google.protobuf.internal import more_messages_pb2
 from google.protobuf.internal import wire_format
 from google.protobuf.internal import test_util
 from google.protobuf.internal import decoder
-from google.protobuf.internal.utils import string_to_bytestr
+from google.protobuf.internal.utils import string_to_bytestr, unichr, \
+    range, unicode
 
 
 class _MiniDecoder(object):
@@ -424,7 +425,7 @@ class ReflectionTest(unittest.TestCase):
     proto.repeated_string.extend(['foo', 'bar'])
     proto.repeated_string.extend([])
     proto.repeated_string.append('baz')
-    proto.repeated_string.extend(unicode(x) for x in xrange(2))
+    proto.repeated_string.extend(unicode(x) for x in range(2))
     proto.optional_int32 = 21
     proto.repeated_bool  # Access but don't set anything; should not be listed.
     self.assertEqual(
@@ -677,7 +678,7 @@ class ReflectionTest(unittest.TestCase):
     self.assertEqual([5, 25, 20, 15, 30], proto.repeated_int32[:])
 
     # Test slice assignment with an iterator
-    proto.repeated_int32[1:4] = (i for i in xrange(3))
+    proto.repeated_int32[1:4] = (i for i in range(3))
     self.assertEqual([5, 0, 1, 2, 30], proto.repeated_int32)
 
     # Test slice assignment.
@@ -1628,7 +1629,7 @@ class ByteSizeTest(unittest.TestCase):
       self.assertEqual(expected_varint_size + 1, self.Size())
     Test(0, 1)
     Test(1, 1)
-    for i, num_bytes in zip(range(7, 63, 7), range(1, 10000)):
+    for i, num_bytes in zip(list(range(7, 63, 7)), list(range(1, 10000))):
       Test((1 << i) - 1, num_bytes)
     Test(-1, 10)
     Test(-2, 10)
@@ -1944,7 +1945,7 @@ class SerializationTest(unittest.TestCase):
     test_util.SetAllFields(first_proto)
     serialized = first_proto.SerializeToString()
 
-    for truncation_point in xrange(len(serialized) + 1):
+    for truncation_point in range(len(serialized) + 1):
       try:
         second_proto = unittest_pb2.TestAllTypes()
         unknown_fields = unittest_pb2.TestEmptyMessage()

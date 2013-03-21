@@ -42,6 +42,15 @@ from google.protobuf.internal.utils import cmp
 from google.protobuf import message
 from google.internal.utils import bytestr_to_string
 
+import sys
+if sys.version > '3':
+    import collections
+    def is_sequence(other):
+        return isinstance(other, collections.Sequence)
+else:
+    def is_sequence(other):
+        return operator.isSequenceType(other)
+
 
 _LABEL_REPEATED = _net_proto2___python.LABEL_REPEATED
 _LABEL_OPTIONAL = _net_proto2___python.LABEL_OPTIONAL
@@ -148,7 +157,7 @@ class RepeatedScalarContainer(object):
   def __eq__(self, other):
     if self is other:
       return True
-    if not operator.isSequenceType(other):
+    if not is_sequence(other):
       raise TypeError(
           'Can only compare repeated scalar fields against sequences.')
     # We are presumably comparing against some other sequence type.
@@ -390,7 +399,7 @@ def _AddDescriptors(message_descriptor, dictionary):
     dictionary['__descriptors'][field.name] = GetFieldDescriptor(
         field.full_name)
 
-  dictionary['__slots__'] = list(dictionary['__descriptors'].iterkeys()) + [
+  dictionary['__slots__'] = list(iteritems(dictionary['__descriptors'])) + [
       '_cmsg', '_owner', '_composite_fields', 'Extensions']
 
 
@@ -409,7 +418,7 @@ def _AddEnumValues(message_descriptor, dictionary):
 def _AddClassAttributesForNestedExtensions(message_descriptor, dictionary):
   """Adds class attributes for the nested extensions."""
   extension_dict = message_descriptor.extensions_by_name
-  for extension_name, extension_field in extension_dict.iteritems():
+  for extension_name, extension_field in iteritems(extension_dict):
     assert extension_name not in dictionary
     dictionary[extension_name] = extension_field
 
@@ -457,7 +466,7 @@ def _AddInitMethod(message_descriptor, cls):
     self.Extensions = ExtensionDict(self)
     self._composite_fields = {}
 
-    for field_name, field_value in kwargs.iteritems():
+    for field_name, field_value in iteritems(kwargs):
       field_cdescriptor = self.__descriptors.get(field_name, None)
       if field_cdescriptor is None:
         raise ValueError('Protocol message has no "%s" field.' % field_name)
@@ -588,7 +597,7 @@ def _AddMessageMethods(message_descriptor, cls):
     return bytestr_to_string(text_format.MessageToString(self, as_utf8=True))
 
   # Attach the local methods to the message class.
-  for key, value in locals().copy().iteritems():
+  for key, value in iteritems(locals().copy()):
     if key not in ('key', 'value', '__builtins__', '__name__', '__doc__'):
       setattr(cls, key, value)
 
@@ -615,6 +624,6 @@ def _AddMessageMethods(message_descriptor, cls):
 def _AddPropertiesForExtensions(message_descriptor, cls):
   """Adds properties for all fields in this protocol message type."""
   extension_dict = message_descriptor.extensions_by_name
-  for extension_name, extension_field in extension_dict.iteritems():
+  for extension_name, extension_field in iteritemsextension_dict):
     constant_name = extension_name.upper() + '_FIELD_NUMBER'
     setattr(cls, constant_name, extension_field.number)

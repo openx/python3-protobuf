@@ -2,6 +2,8 @@
 #
 # See README for usage instructions.
 
+from __future__ import print_function
+
 # We must use setuptools, not distutils, because we need to use the
 # namespace_packages option for the "google" package.
 from ez_setup import use_setuptools
@@ -35,13 +37,13 @@ def generate_proto(source):
   output = source.replace(".proto", "_pb2.py").replace("../src/", "")
 
   if not os.path.exists(source):
-    print "Can't find required file: " + source
+    print("Can't find required file: " + source)
     sys.exit(-1)
 
   if (not os.path.exists(output) or
       (os.path.exists(source) and
        os.path.getmtime(source) > os.path.getmtime(output))):
-    print "Generating %s..." % output
+    print("Generating %s..." % output)
 
     if protoc == None:
       sys.stderr.write(
@@ -108,7 +110,7 @@ if __name__ == '__main__':
 
   # C++ implementation extension
   if os.getenv("PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION", "python") == "cpp":
-    print "Using EXPERIMENTAL C++ Implmenetation."
+    print("Using EXPERIMENTAL C++ Implmenetation.")
     ext_module_list.append(Extension(
         "google.protobuf.internal._net_proto2___python",
         [ "google/protobuf/pyext/python_descriptor.cc",
@@ -132,6 +134,7 @@ if __name__ == '__main__':
           'google.protobuf.internal.message_listener',
           'google.protobuf.internal.python_message',
           'google.protobuf.internal.type_checkers',
+          'google.protobuf.internal.utils',
           'google.protobuf.internal.wire_format',
           'google.protobuf.descriptor',
           'google.protobuf.descriptor_pb2',
