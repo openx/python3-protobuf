@@ -79,8 +79,7 @@ nobase_include_HEADERS =                                       \
   google/protobuf/compiler/plugin.pb.h                         \
   google/protobuf/compiler/cpp/cpp_generator.h                 \
   google/protobuf/compiler/java/java_generator.h               \
-  google/protobuf/compiler/python/python_generator.h           \
-  google/protobuf/compiler/python3/python3_generator.h
+  google/protobuf/compiler/python/python_generator.h
 
 lib_LTLIBRARIES = libprotobuf-lite.la libprotobuf.la libprotoc.la
 
@@ -188,8 +187,7 @@ libprotoc_la_SOURCES =                                         \
   google/protobuf/compiler/java/java_service.h                 \
   google/protobuf/compiler/java/java_string_field.cc           \
   google/protobuf/compiler/java/java_string_field.h            \
-  google/protobuf/compiler/python/python_generator.cc          \
-  google/protobuf/compiler/python3/python3_generator.cc
+  google/protobuf/compiler/python/python_generator.cc
 
 bin_PROGRAMS = protoc
 protoc_LDADD = $(PTHREAD_LIBS) libprotobuf.la libprotoc.la
@@ -325,7 +323,6 @@ protobuf_test_SOURCES =                                        \
   google/protobuf/compiler/cpp/cpp_plugin_unittest.cc          \
   google/protobuf/compiler/java/java_plugin_unittest.cc        \
   google/protobuf/compiler/python/python_plugin_unittest.cc    \
-  google/protobuf/compiler/python3/python3_plugin_unittest.cc  \
   $(COMMON_TEST_SOURCES)
 nodist_protobuf_test_SOURCES = $(protoc_outputs)
 

@@ -110,8 +110,7 @@ libprotoc = _cpp.Library(
            "compiler/java/java_primitive_field.h",
            "compiler/java/java_service.cc",
            "compiler/java/java_service.h",
-           "compiler/python/python_generator.cc",
-           "compiler/python3/python3_generator.cc" ],
+           "compiler/python/python_generator.cc" ],
   deps = [ protobuf ])
 
 protoc = _cpp.Binary(
