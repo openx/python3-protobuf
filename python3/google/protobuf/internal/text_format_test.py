@@ -112,7 +112,7 @@ class TextFormatTest(unittest.TestCase):
       b'repeated_double: 1.23e+22\n'
       b'repeated_double: 1.23e-18\n'
       b'repeated_string: '
-        b'"\\000\\001\\007\\010\\014\\n\\r\\t\\013\\\\\\\'\\""\n'
+      b'"\\000\\001\\007\\010\\014\\n\\r\\t\\013\\\\\\\'\\""\n'
       b'repeated_string: "\\303\\274\\352\\234\\237"\n')
 
   def testPrintNestedMessageAsOneLine(self):
@@ -363,12 +363,12 @@ class TextFormatTest(unittest.TestCase):
     message = unittest_py3_pb2.TestAllTypes()
     text = b'RepeatedGroup: <'
     self.assertRaisesWithMessage(
-        text_format.ParseError, '1:16 : Expected "b\'>\'".',
+        text_format.ParseError, '1:16 : Expected ">".',
         text_format.Merge, text, message)
 
     text = b'RepeatedGroup: {'
     self.assertRaisesWithMessage(
-        text_format.ParseError, '1:16 : Expected "b\'}\'".',
+        text_format.ParseError, '1:16 : Expected "}".',
         text_format.Merge, text, message)
 
   def testMergeEmptyGroup(self):

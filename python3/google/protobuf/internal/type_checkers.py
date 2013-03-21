@@ -64,6 +64,9 @@ def GetTypeChecker(cpp_type, field_type):
     An instance of TypeChecker which can be used to verify the types
     of values assigned to a field of the specified type.
   """
+  if (cpp_type == _FieldDescriptor.CPPTYPE_STRING and
+      field_type == _FieldDescriptor.TYPE_BYTES):
+    return TypeChecker(bytes)
   return _VALUE_CHECKERS[cpp_type]
 
 
@@ -137,7 +140,7 @@ _VALUE_CHECKERS = {
         float, int, int),
     _FieldDescriptor.CPPTYPE_BOOL: TypeChecker(bool, int),
     _FieldDescriptor.CPPTYPE_ENUM: Int32ValueChecker(),
-    _FieldDescriptor.CPPTYPE_STRING: TypeChecker(str, bytes),
+    _FieldDescriptor.CPPTYPE_STRING: TypeChecker(str),
     }
 
 

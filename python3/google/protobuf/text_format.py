@@ -32,10 +32,6 @@
 
 __author__ = 'kenton@google.com (Kenton Varda)'
 
-try:
-    from StringIO import StringIO as SimIO
-except ImportError:
-    from io import BytesIO as SimIO
 import re
 
 from collections import deque
@@ -53,7 +49,7 @@ else:
 from google.protobuf.internal import type_checkers
 from google.protobuf.internal.utils import bytes_to_string, \
     bytestr_to_string, string_to_bytestr, string_to_bytes, \
-    char_byte, byte_ord, bytestr, single_byte
+    byte_chr, SimIO
 from google.protobuf import descriptor
 
 __all__ = [ 'MessageToString', 'PrintMessage', 'PrintField',
@@ -242,7 +238,8 @@ def _MergeField(tokenizer, message):
 
     while not tokenizer.TryConsume(end_token):
       if tokenizer.AtEnd():
-        raise tokenizer.ParseErrorPreviousToken('Expected "%s".' % (end_token))
+        raise tokenizer.ParseErrorPreviousToken('Expected "%s".' %
+                                                bytestr_to_string((end_token)))
       _MergeField(tokenizer, sub_message)
   else:
     _MergeScalarField(tokenizer, message, field)
@@ -428,8 +425,8 @@ class _Tokenizer(object):
     """
     if not self.token:
       return False
-    c = self.token[0]
-    return (c >= char_byte('0') and c <= char_byte('9')) or c == char_byte('-') or c == char_byte('+')
+    c = ord(self.token[0:1])
+    return (c >= ord('0') and c <= ord('9')) or c == ord('-') or c == ord('+')
 
   def ConsumeIdentifier(self):
     """Consumes protocol message field identifier.
@@ -581,7 +578,7 @@ class _Tokenizer(object):
       ParseError: If a byte array value couldn't be consumed.
     """
     list = [self._ConsumeSingleByteString()]
-    while len(self.token) > 0 and self.token[0] in (char_byte('\''), char_byte('"')):
+    while len(self.token) > 0 and ord(self.token[0:1]) in (ord('\''), ord('"')):
       list.append(self._ConsumeSingleByteString())
     return b"".join(list)
 
@@ -593,7 +590,7 @@ class _Tokenizer(object):
     method only consumes one token.
     """
     text = self.token
-    if len(text) < 1 or text[0] not in (char_byte('\''), char_byte('"')):
+    if len(text) < 1 or ord(text[0:1]) not in (ord('\''), ord('"')):
       raise self._ParseError('Exptected string.')
 
     if len(text) < 2 or text[-1] != text[0]:
@@ -682,7 +679,7 @@ class _Tokenizer(object):
       token = match.group(0)
       self.token = token
     else:
-      self.token = single_byte(self._current_line[self._column])
+      self.token = self._current_line[self._column:self._column+1]
 
 
 # text.encode('string_escape') does not seem to satisfy our needs as it
@@ -692,7 +689,7 @@ class _Tokenizer(object):
 # decoded in C++ as a single-character string with char code 0x11.
 def _CEscape(byte_array, as_utf8):
   def escape(c):
-    b = byte_ord(c)
+    b = ord(c)
     if b == 10: return b"\\n"   # optional escape
     if b == 13: return b"\\r"   # optional escape
     if b ==  9: return b"\\t"   # optional escape
@@ -703,8 +700,8 @@ def _CEscape(byte_array, as_utf8):
 
     # necessary escapes
     if not as_utf8 and (b >= 127 or b < 32): return string_to_bytes("\\%03o" % b)
-    return bytestr(b)
-  return b"".join([escape(c) for c in byte_array])
+    return c
+  return b"".join([escape(byte_chr(c)) for c in byte_array])
 
 
 _CUNESCAPE_HEX = re.compile(b'\\\\x([0-9a-fA-F]{2}|[0-9a-fA-F])')
@@ -712,7 +709,7 @@ _CUNESCAPE_HEX = re.compile(b'\\\\x([0-9a-fA-F]{2}|[0-9a-fA-F])')
 
 def _CUnescape(text):
   def ReplaceHex(m):
-    return bytestr(int(m.group(0)[2:], 16))
+    return m.group(0)
   # This is required because the 'string_escape' encoding doesn't
   # allow single-digit hex escapes (like '\xf').
   result = _CUNESCAPE_HEX.sub(ReplaceHex, text)

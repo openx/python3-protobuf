@@ -83,7 +83,7 @@ __author__ = 'kenton@google.com (Kenton Varda)'
 import struct
 from google.protobuf.internal import encoder
 from google.protobuf.internal import wire_format
-from google.protobuf.internal.utils import bytestr_to_string, byte_ord
+from google.protobuf.internal.utils import bytestr_to_string
 from google.protobuf import message
 
 
@@ -113,7 +113,7 @@ def _VarintDecoder(mask):
     result = 0
     shift = 0
     while 1:
-      b = byte_ord(buffer[pos])
+      b = ord(buffer[pos:pos+1])
       result |= ((b & 0x7f) << shift)
       pos += 1
       if not (b & 0x80):
@@ -132,7 +132,7 @@ def _SignedVarintDecoder(mask):
     result = 0
     shift = 0
     while 1:
-      b = byte_ord(buffer[pos])
+      b = ord(buffer[pos:pos+1])
       result |= ((b & 0x7f) << shift)
       pos += 1
       if not (b & 0x80):
@@ -168,7 +168,7 @@ def ReadTag(buffer, pos):
   """
 
   start = pos
-  while byte_ord(buffer[pos]) & 0x80:
+  while ord(buffer[pos:pos+1]) & 0x80:
     pos += 1
   pos += 1
   return (buffer[start:pos], pos)
@@ -624,7 +624,7 @@ def MessageSetItemDecoder(extensions_by_number):
 def _SkipVarint(buffer, pos, end):
   """Skip a varint value.  Returns the new position."""
 
-  while byte_ord(buffer[pos]) & 0x80:
+  while ord(buffer[pos:pos+1]) & 0x80:
     pos += 1
   pos += 1
   if pos > end:
@@ -703,7 +703,7 @@ def _FieldSkipper():
     """
 
     # The wire type is always in the first byte since varints are little-endian.
-    wire_type = byte_ord(tag_bytes[0]) & wiretype_mask
+    wire_type = ord(tag_bytes[0:1]) & wiretype_mask
     return WIRETYPE_TO_SKIPPER[wire_type](buffer, pos, end)
 
   return SkipField

@@ -614,8 +614,8 @@ DoubleEncoder   = _FloatingPointEncoder(wire_format.WIRETYPE_FIXED64, b'<d')
 def BoolEncoder(field_number, is_repeated, is_packed):
   """Returns an encoder for a boolean field."""
 
-  false_byte = bytestr(0)
-  true_byte = bytestr(1)
+  false_byte = b'\x00'
+  true_byte = b'\x01'
   if is_packed:
     tag_bytes = TagBytes(field_number, wire_format.WIRETYPE_LENGTH_DELIMITED)
     local_EncodeVarint = _EncodeVarint

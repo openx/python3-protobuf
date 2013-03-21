@@ -2322,7 +2322,7 @@ class SerializationTest(unittest.TestCase):
         optional_int32=1,
         optional_string='foo',
         optional_bool=True,
-        optional_bytes='bar',
+        optional_bytes=b'bar',
         optional_nested_message=unittest_py3_pb2.TestAllTypes.NestedMessage(bb=1),
         optional_foreign_message=unittest_py3_pb2.ForeignMessage(c=1),
         optional_nested_enum=unittest_py3_pb2.TestAllTypes.FOO,
@@ -2340,7 +2340,7 @@ class SerializationTest(unittest.TestCase):
     self.assertEqual(1, proto.optional_int32)
     self.assertEqual('foo', proto.optional_string)
     self.assertEqual(True, proto.optional_bool)
-    self.assertEqual('bar', proto.optional_bytes)
+    self.assertEqual(b'bar', proto.optional_bytes)
     self.assertEqual(1, proto.optional_nested_message.bb)
     self.assertEqual(1, proto.optional_foreign_message.c)
     self.assertEqual(unittest_py3_pb2.TestAllTypes.FOO,
