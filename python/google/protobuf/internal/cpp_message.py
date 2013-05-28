@@ -624,6 +624,6 @@ def _AddMessageMethods(message_descriptor, cls):
 def _AddPropertiesForExtensions(message_descriptor, cls):
   """Adds properties for all fields in this protocol message type."""
   extension_dict = message_descriptor.extensions_by_name
-  for extension_name, extension_field in iteritemsextension_dict):
+  for extension_name, extension_field in iteritems(extension_dict):
     constant_name = extension_name.upper() + '_FIELD_NUMBER'
     setattr(cls, constant_name, extension_field.number)
