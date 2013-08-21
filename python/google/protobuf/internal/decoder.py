@@ -296,7 +296,7 @@ def _FloatDecoder():
     # In Python 2.4, struct.unpack will convert it to a finite 64-bit value.
     # To avoid that, we parse it specially.
     if ((float_bytes[3] in b'\x7F\xFF')
-        and (float_bytes[2] >= b'\x80')):
+        and (float_bytes[2] >= 128)):
       # If at least one significand bit is set...
       if float_bytes[0:3] != b'\x00\x00\x80':
         return (_NAN, new_pos)
@@ -331,7 +331,7 @@ def _DoubleDecoder():
     # bit set, it's not a number.  In Python 2.4, struct.unpack will treat it
     # as inf or -inf.  To avoid that, we treat it specially.
     if ((double_bytes[7] in b'\x7F\xFF')
-        and (double_bytes[6] >= b'\xF0')
+        and (double_bytes[6] >= 240)
         and (double_bytes[0:7] != b'\x00\x00\x00\x00\x00\x00\xF0')):
       return (_NAN, new_pos)
 
