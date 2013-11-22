@@ -276,8 +276,10 @@ bool Generator::Generate(const FileDescriptor* file,
 void Generator::PrintImports() const {
   for (int i = 0; i < file_->dependency_count(); ++i) {
     string module_name = ModuleName(file_->dependency(i)->name());
-    printer_->Print("import $module$\n", "module",
-                    module_name);
+    printer_->Print("try:\n");
+    printer_->Print("  from . import $module$\n", "module", module_name);
+    printer_->Print("except ImportError:\n");
+    printer_->Print("  import $module$\n", "module", module_name);
   }
   printer_->Print("\n");
 }
