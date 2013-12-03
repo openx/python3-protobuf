@@ -47,6 +47,7 @@
 #include <utility>
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include <google/protobuf/compiler/python/python_generator.h>
 #include <google/protobuf/descriptor.pb.h>
@@ -209,6 +210,14 @@ string StringifyDefaultValue(const FieldDescriptor& field) {
   return "";
 }
 
+const char RELATIVE_IMPORT[] = \
+"try:\n" \
+"    from . import $module$\n"\
+"except ImportError: \n"
+"    import $module$\n";
+
+const char ABSOLUTE_IMPORT[] = \
+"import $module$\n";
 
 
 }  // namespace
@@ -276,10 +285,10 @@ bool Generator::Generate(const FileDescriptor* file,
 void Generator::PrintImports() const {
   for (int i = 0; i < file_->dependency_count(); ++i) {
     string module_name = ModuleName(file_->dependency(i)->name());
-    printer_->Print("try:\n");
-    printer_->Print("  from . import $module$\n", "module", module_name);
-    printer_->Print("except ImportError:\n");
-    printer_->Print("  import $module$\n", "module", module_name);
+    if (module_name.find('.') != string::npos)
+      printer_->Print(ABSOLUTE_IMPORT, "module", module_name);
+    else
+      printer_->Print(RELATIVE_IMPORT, "module", module_name);
   }
   printer_->Print("\n");
 }
