@@ -1,6 +1,9 @@
 Copyright 2008, Google Inc.
 All rights reserved.
 
+Changes from Google release:
+Copyright 2012-2014, OpenX.
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
